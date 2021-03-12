@@ -37,7 +37,7 @@ class ChapterScreen extends HookWidget {
       if (kIsWeb) {
         doc = parse(await rootBundle.loadString("saved_html/chapter.html"));
       } else {
-        doc = await fetchDoc("story/${args.storyID}/$chapterNum/");
+        doc = await fetchDoc("story/${args.storyID}/${chapterNum.value}/");
       }
 
       page.value = Chapter.page(doc);
