@@ -125,7 +125,8 @@ class AppDrawerData {
 }
 
 class BookshelfData {
-  final String name, icon, iconStyle, iconType;
+  String name;
+  final String icon, iconStyle, iconType;
   final int numUnread, id;
 
   BookshelfData({this.name, this.numUnread, this.icon, this.iconStyle, this.iconType, this.id});
@@ -268,8 +269,14 @@ class Bookshelves extends StatelessWidget {
     final hidableShelves = sharedPrefs.hidableShelves;
     if (hidableShelves) {
       final prefix = sharedPrefs.shelfHidePrefix;
+      //extract all shelves with prefix
       hiddenShelves = shelves.where((s) => s.name.startsWith(prefix)).toList();
       shelves.removeWhere((s) => s.name.startsWith(prefix));
+
+      if (sharedPrefs.shelfTrimHidePrefix) {
+        //trim prefix
+        hiddenShelves.forEach((s) => s.name = s.name.replaceFirst(prefix, ''));
+      }
     }
 
     //shelves to tiles
@@ -278,18 +285,21 @@ class Bookshelves extends StatelessWidget {
     //add (hidden shelves->tiles)
     if (hidableShelves) {
       final hiderTile = ExpansionTile(
+        leading: FaIcon(FontAwesomeIcons.book),
+        title: Text('Hidden shelves'),
         children: hiddenShelves.map((s) => ShelfTile(s)).toList(),
-        title: Text("Hidden"),
         key: hiddenShelvesKey,
-        onExpansionChanged: (v) => {if (v) _scrollIntoView(hiddenShelvesKey)},
+        onExpansionChanged: (v) {
+          if (v) _scrollIntoView(hiddenShelvesKey);
+        },
       );
       shelfTiles.add(hiderTile);
     }
     return ExpansionTile(
-      key: libraryKey,
       title: Text("Library"),
       children: shelfTiles,
       initiallyExpanded: sharedPrefs.showShelves,
+      key: libraryKey,
       onExpansionChanged: (v) {
         sharedPrefs.showShelves = v;
         if (v) _scrollIntoView(libraryKey);
