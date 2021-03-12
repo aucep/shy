@@ -51,12 +51,19 @@ class HomeScreen extends HookWidget {
           body: body == null
               ? Center(child: CircularProgressIndicator())
               : TabBarView(
-                  children: [
-                    StoryCardList(body.featured, refresh),
-                    StoryCardList(body.newly, refresh),
-                    StoryCardList(body.updated, refresh),
-                    StoryCardList(body.popular, refresh),
-                  ],
+                  children: kIsWeb
+                      ? [
+                          Text("Featured"),
+                          Text("New"),
+                          Text("Updated"),
+                          Text("Popular"),
+                        ]
+                      : [
+                          StoryCardList(body.featured, refresh),
+                          StoryCardList(body.newly, refresh),
+                          StoryCardList(body.updated, refresh),
+                          StoryCardList(body.popular, refresh),
+                        ],
                 ),
           drawer: AppDrawer(data: page.value.drawer, refresh: refresh),
         ));
