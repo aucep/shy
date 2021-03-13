@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:html/dom.dart' show Document;
 import 'package:html/parser.dart' show parse;
 import 'package:scroll_app_bar/scroll_app_bar.dart';
@@ -10,7 +9,6 @@ import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart
 //code-splitting
 import '../appDrawer.dart';
 import '../util/pageData.dart';
-import '../auth.dart';
 
 //fimfiction.net/story/[storyID]/[chapterNum]
 class ChapterScreenArgs {
@@ -27,7 +25,6 @@ class ChapterScreen extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final controller = useScrollController();
-    final auth = useProvider(authProvider);
     var chapterNum = useState(args.chapterNum);
 
     var page = useState(PageData<Chapter>());
@@ -46,7 +43,7 @@ class ChapterScreen extends HookWidget {
     useEffect(() {
       refresh();
       return null;
-    }, [auth, chapterNum]);
+    }, [chapterNum]);
 
     return Scaffold(
       appBar: ScrollAppBar(
