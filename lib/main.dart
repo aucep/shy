@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 //Code-splitting
 import 'util/sharedPrefs.dart';
-import 'screens/homeScreen.dart';
-import 'screens/chapterScreen.dart';
+import 'screens/home.dart';
+import 'screens/chapter.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

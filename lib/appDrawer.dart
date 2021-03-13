@@ -9,7 +9,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:html/dom.dart' show Document;
 import 'package:html_unescape/html_unescape_small.dart';
 //code-splitting
-import 'screens/chapterScreen.dart';
+import 'screens/chapter.dart';
 import 'util/fimHttp.dart';
 import 'util/sharedPrefs.dart';
 
