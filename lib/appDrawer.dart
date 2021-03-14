@@ -71,7 +71,8 @@ class AppDrawer extends HookWidget {
             route: "/chapter",
             arguments: ChapterScreenArgs("395988", "1"),
           ),
-          if (data.shelves.length > 0) Bookshelves(shelves: data.shelves),
+          if (data?.shelves != null)
+            if (data.shelves.length > 0) Bookshelves(shelves: data.shelves),
         ],
       ),
     );
