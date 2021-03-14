@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -5,9 +7,12 @@ import 'package:html/dom.dart' show Document;
 import 'package:html/dom.dart' as Html show Element;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:html/parser.dart' show parse;
+import 'package:full_screen_image/full_screen_image.dart';
 //code-splitting
 import '../appDrawer.dart';
 import '../util/pageData.dart';
+import '../util/nav.dart';
+import 'story.dart';
 
 class HomeScreen extends HookWidget {
   @override
@@ -105,63 +110,57 @@ class StoryCard extends StatelessWidget {
     return Card(
       margin: EdgeInsets.only(bottom: 8),
       elevation: 3,
-      child: Container(
-        margin: EdgeInsets.all(8),
-        width: 400,
-        child: IntrinsicHeight(
-          child: Column(
-            children: [
-              Row(children: [
-                Chip(
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(3)),
-                  label: Text(data.contentRating),
-                  labelPadding: EdgeInsets.symmetric(horizontal: 5),
-                  backgroundColor: data.contentRating == "E"
-                      ? Color(0xff78ac40)
-                      : data.contentRating == "T"
-                          ? Color(0xffffb400)
-                          : Color(0xffc03d2f),
-                ),
-                Container(width: 5),
-                Flexible(
-                  child: Text(
-                    data.title,
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                )
-              ]),
-              Divider(),
-              Expanded(
-                child: Row(
-                  children: [
-                    data.imageUrl.isNotEmpty
-                        ? Padding(
-                            padding: EdgeInsets.fromLTRB(3, 0, 8, 0),
-                            child: Container(
-                                height: 90,
-                                width: 90,
-                                child: Image.network(
-                                  data.imageUrl,
-                                  width: 90,
-                                  height: 90,
-                                )))
-                        : Container(),
-                    Expanded(child: Text(data.description)),
-                  ],
-                ),
-              ),
-              Divider(),
-              Row(
+      child: Material(
+        child: InkWell(
+          onTap: () =>
+              Navigator.of(context).pushNamedIfNew('/story', args: StoryArgs(data.storyId)),
+          child: Container(
+            margin: EdgeInsets.all(8),
+            width: 400,
+            child: IntrinsicHeight(
+              child: Column(
                 children: [
-                  InfoChip(data.authorName),
-                  Spacer(),
-                  InfoChip(data.wordcount),
-                  Container(width: 5),
-                  InfoChip(data.viewcount),
+                  Row(children: [
+                    ContentRating(data.contentRating),
+                    Container(width: 5),
+                    Flexible(
+                      child: Text(
+                        data.title,
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    )
+                  ]),
+                  Divider(),
+                  Expanded(
+                    child: Row(
+                      children: [
+                        data.imageUrl.isNotEmpty
+                            ? Padding(
+                                padding: EdgeInsets.fromLTRB(3, 0, 8, 0),
+                                child: ConstrainedBox(
+                                  constraints: BoxConstraints(maxHeight: 100, maxWidth: 100),
+                                  child: ExpandableImage(data.imageUrl),
+                                ),
+                              )
+                            : Container(),
+                        Expanded(child: Text(data.description)),
+                      ],
+                    ),
+                  ),
+                  Divider(),
+                  Row(
+                    children: [
+                      InfoChip(data.authorName),
+                      Spacer(),
+                      InfoChip(data.wordcount),
+                      Container(width: 5),
+                      InfoChip(data.viewcount),
+                    ],
+                  ),
                 ],
               ),
-            ],
+            ),
           ),
         ),
       ),
@@ -173,15 +172,14 @@ class StoryCardData {
   final String title,
       description,
       authorName,
-      authorId,
       imageUrl,
       wordcount,
       viewcount,
       likes,
       dislikes,
       rating,
-      contentRating,
-      storyId;
+      contentRating;
+  final int authorId, storyId;
 
   StoryCardData({
     this.title,
@@ -211,11 +209,11 @@ class StoryCardData {
 
     return StoryCardData(
       title: storyLink.innerHtml,
-      storyId: storyLink.attributes["href"].split("/")[2],
+      storyId: int.parse(storyLink.attributes["href"].split("/")[2]),
       imageUrl: image != null ? image.attributes["src"] ?? image.attributes["data-src"] : "",
       description: (c ? desc.nodes[desc.nodes.length == 1 ? 0 : 2] : desc.nodes.last).text.trim(),
       authorName: authorLink.innerHtml,
-      authorId: authorLink.attributes["href"].split("/")[2],
+      authorId: int.parse(authorLink.attributes["href"].split("/")[2]),
       wordcount: info.nodes[c ? 4 : 3].text.trim(),
       viewcount: (c ? info.nodes.last : info.nodes[5]).text.trim(),
       likes: c
@@ -265,6 +263,43 @@ class StoryCardList extends StatelessWidget {
           children: data.map((c) => StoryCard(data: c)).toList(),
         ),
       ),
+    );
+  }
+}
+
+class ContentRating extends StatelessWidget {
+  final String contentRating;
+  ContentRating(this.contentRating);
+
+  @override
+  Widget build(BuildContext context) {
+    return Chip(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(3)),
+      label: Text(contentRating),
+      labelPadding: EdgeInsets.symmetric(horizontal: 5),
+      backgroundColor: contentRating == 'E'
+          ? Color(0xff78ac40)
+          : contentRating == 'T'
+              ? Color(0xffffb400)
+              : Color(0xffc03d2f),
+    );
+  }
+}
+
+class ExpandableImage extends StatelessWidget {
+  final String url;
+  ExpandableImage(this.url);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: FullScreenWidget(
+        child: Hero(tag: url, child: Image.network(url, fit: BoxFit.contain)),
+        backgroundColor: Color.fromARGB(0, 0, 0, 0),
+        backgroundIsTransparent: true,
+      ),
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(8)),
+      clipBehavior: Clip.antiAlias,
     );
   }
 }

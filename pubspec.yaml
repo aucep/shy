@@ -47,6 +47,12 @@ dependencies:
   badges: ^1.2.0
   #fontawesome
   font_awesome_flutter: ^8.12.0
+  #compare route args
+  equatable: ^2.0.0
+  #fullscreen image preview
+  full_screen_image: ^1.0.2
+  #for funsies
+  assorted_layout_widgets: ^4.0.0
 
 
 dev_dependencies:

@@ -310,7 +310,7 @@ class Bookshelves extends StatelessWidget {
   _scrollIntoView(GlobalKey key) async {
     final keyContext = key.currentContext;
     if (keyContext != null) {
-      await Future.delayed(Duration(milliseconds: 225));
+      await Future.delayed(Duration(milliseconds: 220));
       Scrollable.ensureVisible(keyContext,
           duration: Duration(milliseconds: 200),
           alignmentPolicy: ScrollPositionAlignmentPolicy.keepVisibleAtEnd);
