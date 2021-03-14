@@ -164,7 +164,7 @@ class LoginDialog extends HookWidget {
 
     return AlertDialog(
       title: Text("Log in"),
-      content: Padding(
+      content: SingleChildScrollView(
         padding: EdgeInsets.symmetric(horizontal: 8),
         child: Form(
           key: _formKey,
