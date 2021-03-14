@@ -1,16 +1,18 @@
 import 'package:badges/badges.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Element;
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
-import 'package:html/dom.dart' show Document;
+import 'package:html/dom.dart' show Document, Element;
 import 'package:html/parser.dart' show parse;
 import 'package:equatable/equatable.dart';
 import 'package:assorted_layout_widgets/assorted_layout_widgets.dart';
+import 'package:html_unescape/html_unescape_small.dart';
 //code-splitting
 import '../appDrawer.dart';
 import '../util/pageData.dart';
+import 'chapter.dart';
 import 'home.dart';
 
 class StoryArgs extends Equatable {
@@ -63,17 +65,22 @@ class StoryScreen extends HookWidget {
                   physics: const AlwaysScrollableScrollPhysics(),
                   padding: EdgeInsets.all(8),
                   children: [
-                    Row(
-                      children: [
-                        Spacer(),
-                        ContentRating(body.contentRating),
-                        Container(width: 5),
-                        Text(
-                          body.title,
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    Center(
+                      child: IntrinsicWidth(
+                        child: Row(
+                          children: [
+                            ContentRating(body.contentRating),
+                            Container(width: 5),
+                            Expanded(
+                              child: Text(
+                                body.title,
+                                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ],
                         ),
-                        Spacer(),
-                      ],
+                      ),
                     ),
                     Divider(),
                     StoryTags(
@@ -92,10 +99,38 @@ class StoryScreen extends HookWidget {
                         ),
                       ),
                     Card(
-                        child: Padding(
-                      padding: EdgeInsets.all(8),
-                      child: HtmlWidget(body.description),
-                    )),
+                      child: Padding(
+                        padding: EdgeInsets.all(8),
+                        child: HtmlWidget(body.description),
+                      ),
+                    ),
+                    /*ListView.separated(
+                        itemBuilder: (context, i) => Text(body.chapterNames[i]),
+                        separatorBuilder: (context, i) => Divider(height: 0),
+                        itemCount: body.chapterNames.length),*/
+                    Divider(),
+                    ExpansionTile(
+                      title: Text(
+                          '${body.chapterNames.length} Chapter${body.chapterNames.length > 1 ? 's' : ''}'),
+                      backgroundColor: Colors.lightGreen[40],
+                      children: body.chapterNames
+                          .asMap()
+                          .entries
+                          .map(
+                            (e) => ListTile(
+                              title: Text(e.value),
+                              onTap: () => Navigator.pushNamed(
+                                context,
+                                '/chapter',
+                                arguments: ChapterScreenArgs(
+                                  storyId: args.id,
+                                  chapterNum: e.key + 1,
+                                ),
+                              ),
+                            ),
+                          )
+                          .toList(),
+                    ),
                   ],
                 ),
               ),
@@ -158,12 +193,18 @@ class Story {
     final characterTags = tags.querySelectorAll('.tag-character');
 
     //chapter
-    final chapters = story.querySelector('.chapters');
+    var chapters = story.querySelector('.chapters').children;
+    if (chapters.length >= 3 && chapters[2].firstChild.firstChild == null) {
+      chapters.removeAt(2); //remove chapter expander
+    }
+
+    List<String> tagNames(List<Element> tags) => tags.map((t) => t.innerHtml).toList();
+    final unesc = HtmlUnescape();
 
     return Story(
       title: title.innerHtml,
       description: description.innerHtml,
-      imageUrl: image.attributes['data-src'],
+      imageUrl: image != null ? image.attributes['data-src'] : null,
       contentRating: contentRating.innerHtml,
       viewInfo: viewInfo.attributes['title'],
       likes: likes.innerHtml,
@@ -171,17 +212,13 @@ class Story {
       completedStatus: completedStatus.innerHtml,
       approvedDate: approvedDate.innerHtml,
       totalWordcount: wordcount.innerHtml,
-      seriesTags: seriesTags.map((t) => t.innerHtml).toList(),
-      warningTags: warningTags.map((t) => t.innerHtml).toList(),
-      genreTags: genreTags.map((t) => t.innerHtml).toList(),
-      contentTags: contentTags.map((t) => t.innerHtml).toList(),
-      characterTags: characterTags.map((t) => t.innerHtml).toList(),
-      chapterNames: chapters.children
-          .map((c) => c
-              .children[0] //div
-              .children[1] //div.title-box
-              .children[0] //a.chapter-title
-              .innerHtml)
+      seriesTags: tagNames(seriesTags),
+      warningTags: tagNames(warningTags),
+      genreTags: tagNames(genreTags),
+      contentTags: tagNames(contentTags),
+      characterTags: tagNames(characterTags),
+      chapterNames: chapters
+          .map((c) => unesc.convert(c.children[0].children[1].children[0].innerHtml))
           .toList(),
     );
   }
@@ -202,6 +239,7 @@ class StoryTags extends StatelessWidget {
     Map<String, int> genreColors = {
       'Adventure': 0x6fb859,
       'Comedy': 0xf59c00,
+      'Drama': 0x895fd6,
       'Dark': 0xb93737,
       'Horror': 0xb93737,
       'Romance': 0xcd58a7,
@@ -229,13 +267,13 @@ class StoryTags extends StatelessWidget {
     color = 0xb159d0;
     tags.addAll(series.map(toBadge));
     color = 0xeb6a63;
-    tags.addAll(warning.map(toBadge));
+    if (warning != null) tags.addAll(warning.map(toBadge));
     color = 'genre';
-    tags.addAll(genre.map(toBadge));
+    if (genre != null) tags.addAll(genre.map(toBadge));
     color = 0x4b4b4b;
-    tags.addAll(content.map(toBadge));
-    color = 0x27cc80;
-    tags.addAll(character.map(toBadge));
+    if (content != null) tags.addAll(content.map(toBadge));
+    color = 0x23b974;
+    if (character != null) tags.addAll(character.map(toBadge));
 
     return WrapSuper(
       children: tags,

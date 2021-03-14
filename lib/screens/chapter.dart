@@ -12,10 +12,9 @@ import '../util/pageData.dart';
 
 //fimfiction.net/story/[storyID]/[chapterNum]
 class ChapterScreenArgs {
-  final String storyID;
-  final String chapterNum;
+  final int storyId, chapterNum;
 
-  ChapterScreenArgs(this.storyID, this.chapterNum);
+  ChapterScreenArgs({this.storyId, this.chapterNum});
 }
 
 class ChapterScreen extends HookWidget {
@@ -34,7 +33,7 @@ class ChapterScreen extends HookWidget {
       if (kIsWeb) {
         doc = parse(await rootBundle.loadString("saved_html/chapter.html"));
       } else {
-        doc = await fetchDoc("story/${args.storyID}/${chapterNum.value}/");
+        doc = await fetchDoc("story/${args.storyId}/${chapterNum.value}/");
       }
 
       page.value = Chapter.page(doc);
@@ -49,7 +48,7 @@ class ChapterScreen extends HookWidget {
       appBar: ScrollAppBar(
         controller: controller,
         titleSpacing: 0,
-        title: CheatTitle("loading story/${args.chapterNum}/${args.storyID}/"),
+        title: CheatTitle("story/${args.storyId}/${chapterNum.value}/"),
         centerTitle: true,
         automaticallyImplyLeading: false,
       ),
@@ -115,16 +114,17 @@ class ChapterStory {
     final storyLink = infoContainer.querySelector("div > h1 > a");
     final authorLink = infoContainer.querySelector(".author > a");
     final description = infoContainer.querySelector("div > div > p");
+    final chapterSelector = doc.querySelector(".chapter-selector ul");
     final chapters =
-        doc.querySelector(".chapter-selector ul").children.where((t) => t != null).toList();
+        chapterSelector != null ? chapterSelector.children.where((t) => t != null).toList() : [];
     return ChapterStory(
         title: storyLink.innerHtml,
         storyId: storyLink.attributes["href"].split("/")[2],
         authorName: authorLink.innerHtml,
         authorId: authorLink.attributes["href"].split("/")[2],
         description: description.innerHtml,
-        chapterTitles:
-            chapters.map((t) => t.querySelector(".chapter-selector__title").innerHtml).toList());
+        chapterTitles: List<String>.from(
+            chapters.map((t) => t.querySelector(".chapter-selector__title").innerHtml)));
   }
 }
 
@@ -139,14 +139,15 @@ class Chapter {
   static Chapter fromChapter(Document doc) {
     final title = doc.querySelector("#chapter_title");
     final authorsNote = doc.querySelector('.authors-note');
-    final notePosition = authorsNote?.attributes["style"].startsWith("margin-top");
+    final noteOnTop =
+        authorsNote != null ? authorsNote.attributes["style"].startsWith("margin-top") : false;
     final body = doc.querySelector("#chapter-body > div");
     final paragraphs = body.children.map((p) => p.outerHtml).toList();
     return Chapter(
       story: ChapterStory.fromChapter(doc),
       title: title.innerHtml,
       note: authorsNote?.innerHtml ?? "",
-      notePosition: notePosition,
+      notePosition: noteOnTop,
       paragraphs: paragraphs,
     );
   }
