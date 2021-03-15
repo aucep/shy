@@ -53,6 +53,8 @@ dependencies:
   full_screen_image: ^1.0.2
   #for funsies
   assorted_layout_widgets: ^4.0.0
+  #testing new keyval storage
+  get_storage: ^2.0.1
 
 
 dev_dependencies:

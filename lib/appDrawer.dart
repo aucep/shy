@@ -42,8 +42,8 @@ class AppDrawer extends HookWidget {
                 Center(
                   child: Column(
                     children: [
-                      /*if (data.avatarUrl != null)
-                        Image.network(data.avatarUrl, width: 90, height: 90),*/
+                      if (data.avatarUrl != null)
+                        Image.network(data.avatarUrl, width: 90, height: 90),
                       Text(data.username ?? "not logged in"),
                     ],
                   ),

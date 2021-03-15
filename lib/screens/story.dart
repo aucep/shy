@@ -104,33 +104,23 @@ class StoryScreen extends HookWidget {
                         child: HtmlWidget(body.description),
                       ),
                     ),
-                    /*ListView.separated(
-                        itemBuilder: (context, i) => Text(body.chapterNames[i]),
-                        separatorBuilder: (context, i) => Divider(height: 0),
-                        itemCount: body.chapterNames.length),*/
                     Divider(),
-                    ExpansionTile(
-                      title: Text(
-                          '${body.chapterNames.length} Chapter${body.chapterNames.length > 1 ? 's' : ''}'),
-                      backgroundColor: Colors.lightGreen[40],
-                      children: body.chapterNames
-                          .asMap()
-                          .entries
-                          .map(
-                            (e) => ListTile(
-                              title: Text(e.value),
-                              onTap: () => Navigator.pushNamed(
-                                context,
-                                '/chapter',
-                                arguments: ChapterScreenArgs(
+                    if (body.chapters != null)
+                      ExpansionTile(
+                        initiallyExpanded: true,
+                        title: Text(
+                            '${body.chapters.length} Chapter${body.chapters.length > 1 ? 's' : ''}'),
+                        children: body.chapters
+                            .asMap()
+                            .entries
+                            .map((e) => ChapterRow(
+                                  row: e.value,
                                   storyId: args.id,
                                   chapterNum: e.key + 1,
-                                ),
-                              ),
-                            ),
-                          )
-                          .toList(),
-                    ),
+                                  loggedIn: page.value.drawer.loggedIn,
+                                ))
+                            .toList(),
+                      ),
                   ],
                 ),
               ),
@@ -143,19 +133,26 @@ class StoryScreen extends HookWidget {
 class Story {
   final String title, description, imageUrl, contentRating;
   final List<String> seriesTags, warningTags, genreTags, contentTags, characterTags;
-  final List<String> chapterNames;
-  final String completedStatus, approvedDate, totalWordcount, viewInfo, likes, dislikes;
+  final List<ChapterRowData> chapters;
+  final String completedStatus,
+      approvedDate,
+      totalWordcount,
+      viewInfo,
+      commentCount,
+      likes,
+      dislikes;
 
   const Story(
       {this.likes,
       this.dislikes,
       this.viewInfo,
+      this.commentCount,
       this.seriesTags,
       this.genreTags,
       this.warningTags,
       this.characterTags,
       this.contentTags,
-      this.chapterNames,
+      this.chapters,
       this.completedStatus,
       this.approvedDate,
       this.totalWordcount,
@@ -175,7 +172,9 @@ class Story {
 
     //info
     final ratings = story.querySelector('.rating_container');
-    final viewInfo = ratings.children[6];
+    final offset = ratings.nodes[0].text.trim() == 'Ratings Disabled' ? 0 : 3;
+    final viewInfo = ratings.children[3 + offset];
+    final commentCount = ratings.children[1 + offset];
     final likes = ratings.querySelector('.likes');
     final dislikes = ratings.querySelector('.dislikes');
 
@@ -193,13 +192,19 @@ class Story {
     final characterTags = tags.querySelectorAll('.tag-character');
 
     //chapter
-    var chapters = story.querySelector('.chapters').children;
-    if (chapters.length >= 3 && chapters[2].firstChild.firstChild == null) {
-      chapters.removeAt(2); //remove chapter expander
+    final chapters = story.querySelector('.chapters').children;
+    //chapters.removeWhere((c) => c.querySelector('.chapter-title') == null);
+    //removeWhere is not implemented, fuck me
+    List<int> indexesToRemove = [];
+    chapters.asMap().forEach((i, c) {
+      if (c.querySelector('.chapter-title') == null) indexesToRemove.add(i);
+    });
+    for (var i = 0; i < indexesToRemove.length; i++) {
+      final index = indexesToRemove[i] - i;
+      chapters.removeAt(index);
     }
 
     List<String> tagNames(List<Element> tags) => tags.map((t) => t.innerHtml).toList();
-    final unesc = HtmlUnescape();
 
     return Story(
       title: title.innerHtml,
@@ -207,8 +212,9 @@ class Story {
       imageUrl: image != null ? image.attributes['data-src'] : null,
       contentRating: contentRating.innerHtml,
       viewInfo: viewInfo.attributes['title'],
-      likes: likes.innerHtml,
-      dislikes: dislikes.innerHtml,
+      commentCount: commentCount.attributes['title'],
+      likes: likes?.innerHtml,
+      dislikes: dislikes?.innerHtml,
       completedStatus: completedStatus.innerHtml,
       approvedDate: approvedDate.innerHtml,
       totalWordcount: wordcount.innerHtml,
@@ -217,15 +223,32 @@ class Story {
       genreTags: tagNames(genreTags),
       contentTags: tagNames(contentTags),
       characterTags: tagNames(characterTags),
-      chapterNames: chapters
-          .map((c) => unesc.convert(c.children[0].children[1].children[0].innerHtml))
-          .toList(),
+      chapters: chapters.map((c) => ChapterRowData.fromStoryRow(c)).toList(),
     );
   }
 
   static PageData<Story> page(Document doc) {
     return PageData<Story>(drawer: AppDrawerData.fromDoc(doc), body: Story.fromStory(doc));
   }
+
+  Story copyWith({List<ChapterRowData> chapters}) => Story(
+        likes: this.likes,
+        dislikes: this.dislikes,
+        viewInfo: this.viewInfo,
+        seriesTags: this.seriesTags,
+        genreTags: this.genreTags,
+        warningTags: this.warningTags,
+        characterTags: this.characterTags,
+        contentTags: this.contentTags,
+        chapters: chapters ?? this.chapters,
+        completedStatus: this.completedStatus,
+        approvedDate: this.approvedDate,
+        totalWordcount: this.totalWordcount,
+        title: this.title,
+        description: this.description,
+        imageUrl: this.imageUrl,
+        contentRating: this.contentRating,
+      );
 }
 
 class StoryTags extends StatelessWidget {
@@ -254,7 +277,6 @@ class StoryTags extends StatelessWidget {
                     : 0x4f91d6 //default genre tag color
                 : color),
       );
-      print(badgeColor);
       return Badge(
         toAnimate: false,
         badgeContent: Text(tag, style: TextStyle(color: Colors.white)),
@@ -266,7 +288,7 @@ class StoryTags extends StatelessWidget {
 
     color = 0xb159d0;
     tags.addAll(series.map(toBadge));
-    color = 0xeb6a63;
+    color = 0xd6605a;
     if (warning != null) tags.addAll(warning.map(toBadge));
     color = 'genre';
     if (genre != null) tags.addAll(genre.map(toBadge));
@@ -281,5 +303,80 @@ class StoryTags extends StatelessWidget {
       spacing: 6,
       lineSpacing: 6,
     );
+  }
+}
+
+class ChapterRow extends HookWidget {
+  final bool loggedIn;
+  final ChapterRowData row;
+  final int storyId, chapterNum;
+
+  ChapterRow({this.loggedIn, this.row, this.storyId, this.chapterNum});
+
+  @override
+  Widget build(BuildContext context) {
+    final updatingRead = useState(false);
+    final read = useState(row.read);
+    return ListTile(
+      leading: loggedIn
+          ? updatingRead.value
+              ? CircularProgressIndicator()
+              : IconButton(
+                  icon: Icon(read.value ? Icons.check_box_outlined : Icons.check_box_outline_blank),
+                  onPressed: () async {
+                    updatingRead.value = true;
+                    read.value = await row.toggleRead();
+                    updatingRead.value = false;
+                  })
+          : null,
+      title: RowSuper(
+        children: [
+          Text(row.title),
+          RowSpacer(),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              InfoChip(row.date),
+              InfoChip('${row.wordcount} words'),
+            ],
+          ),
+        ],
+      ),
+      onTap: () => Navigator.pushNamed(
+        context,
+        '/chapter',
+        arguments: ChapterScreenArgs(
+          storyId: storyId,
+          chapterNum: chapterNum,
+        ),
+      ),
+    );
+  }
+}
+
+class ChapterRowData {
+  final String title, date, wordcount;
+  final bool read, updatingRead;
+  final int id;
+  ChapterRowData({this.title, this.date, this.wordcount, this.read, this.id, this.updatingRead});
+
+  static ChapterRowData fromStoryRow(Element row) {
+    final unesc = HtmlUnescape();
+    final title = row.querySelector('.chapter-title');
+    final date = row.querySelector('.date');
+    final wordcount = row.querySelector('.word-count-number');
+    final readIcon = row.querySelector('.chapter-read-icon');
+    return ChapterRowData(
+      title: unesc.convert(title.innerHtml),
+      date: date.nodes[1].text,
+      wordcount: wordcount.innerHtml.trim(),
+      read: readIcon != null ? readIcon.classes.contains('chapter-read') : null,
+      id: readIcon != null ? int.parse(readIcon.id.replaceFirst('chapter_read_', '')) : null,
+    );
+  }
+
+  Future<bool> toggleRead() async {
+    await Future.delayed(Duration(milliseconds: 675));
+    return true;
   }
 }

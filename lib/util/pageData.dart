@@ -15,7 +15,7 @@ Future<Document> fetchDoc(String path) async {
   final elapsed = DateTime.now().millisecondsSinceEpoch - start.millisecondsSinceEpoch;
   print("downloaded after $elapsed ms");
 
-  print(resp.headers['content-encoding']); //gzip already covered by http.dart
+  print(resp.headers['content-encoding']); //gzip, zlib already covered by http.dart
   String body;
   switch (resp.headers['content-encoding']) {
     case "br":

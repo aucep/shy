@@ -241,7 +241,7 @@ class InfoChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Chip(
-      label: label is String ? Text(label) : label,
+      label: label is Widget ? label : Text('$label'),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(3)),
       labelPadding: EdgeInsets.zero,
     );
