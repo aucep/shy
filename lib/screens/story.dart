@@ -15,6 +15,8 @@ import '../util/pageData.dart';
 import 'chapter.dart';
 import 'home.dart';
 
+import '../util/fimHttp.dart';
+
 class StoryArgs extends Equatable {
   final int id;
   const StoryArgs(this.id);
@@ -316,16 +318,15 @@ class ChapterRow extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final updatingRead = useState(false);
-    final read = useState(row.read);
     return ListTile(
       leading: loggedIn
           ? updatingRead.value
               ? CircularProgressIndicator()
               : IconButton(
-                  icon: Icon(read.value ? Icons.check_box_outlined : Icons.check_box_outline_blank),
+                  icon: Icon(row.read ? Icons.check_box_outlined : Icons.check_box_outline_blank),
                   onPressed: () async {
                     updatingRead.value = true;
-                    read.value = await row.toggleRead();
+                    print(await row.setRead(!row.read));
                     updatingRead.value = false;
                   })
           : null,
@@ -356,9 +357,9 @@ class ChapterRow extends HookWidget {
 
 class ChapterRowData {
   final String title, date, wordcount;
-  final bool read, updatingRead;
+  bool read;
   final int id;
-  ChapterRowData({this.title, this.date, this.wordcount, this.read, this.id, this.updatingRead});
+  ChapterRowData({this.title, this.date, this.wordcount, this.read, this.id});
 
   static ChapterRowData fromStoryRow(Element row) {
     final unesc = HtmlUnescape();
@@ -375,8 +376,10 @@ class ChapterRowData {
     );
   }
 
-  Future<bool> toggleRead() async {
-    await Future.delayed(Duration(milliseconds: 675));
-    return true;
+  Future<bool> setRead(bool changedTo) async {
+    final resp = await http.ajaxRequest('chapters/$id/read', changedTo ? 'POST' : 'DELETE');
+    print(resp);
+    read = resp['read'];
+    return read;
   }
 }
