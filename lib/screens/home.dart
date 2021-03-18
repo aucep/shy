@@ -24,15 +24,15 @@ class HomeScreen extends HookWidget {
       Document doc;
       final start = DateTime.now();
       if (kIsWeb) {
-        doc = parse(await rootBundle.loadString("saved_html/home.html"));
+        doc = parse(await rootBundle.loadString('saved_html/home.html'));
       } else {
-        doc = await fetchDoc("");
+        doc = await fetchDoc('');
       }
       var elapsed = DateTime.now().millisecondsSinceEpoch - start.millisecondsSinceEpoch;
-      print("doc after $elapsed ms");
+      print('doc after $elapsed ms');
       page.value = Home.page(doc);
       elapsed = DateTime.now().millisecondsSinceEpoch - start.millisecondsSinceEpoch;
-      print("parsed after $elapsed ms");
+      print('parsed after $elapsed ms');
     }
 
     useEffect(() {
@@ -56,19 +56,12 @@ class HomeScreen extends HookWidget {
           body: body == null
               ? Center(child: CircularProgressIndicator())
               : TabBarView(
-                  children: kIsWeb
-                      ? [
-                          Text("Featured"),
-                          Text("New"),
-                          Text("Updated"),
-                          Text("Popular"),
-                        ]
-                      : [
-                          StoryCardList(body.featured, refresh),
-                          StoryCardList(body.newly, refresh),
-                          StoryCardList(body.updated, refresh),
-                          StoryCardList(body.popular, refresh),
-                        ],
+                  children: [
+                    StoryCardList(body.featured, refresh),
+                    StoryCardList(body.newly, refresh),
+                    StoryCardList(body.updated, refresh),
+                    StoryCardList(body.popular, refresh),
+                  ],
                 ),
           drawer: AppDrawer(data: page.value.drawer, refresh: refresh),
         ));

@@ -63,67 +63,72 @@ class StoryScreen extends HookWidget {
           : RefreshIndicator(
               onRefresh: refresh,
               child: Scrollbar(
-                child: ListView(
+                child: ListView.builder(
                   physics: const AlwaysScrollableScrollPhysics(),
-                  padding: EdgeInsets.all(8),
-                  children: [
-                    Center(
-                      child: IntrinsicWidth(
-                        child: Row(
-                          children: [
-                            ContentRating(body.contentRating),
-                            Container(width: 5),
-                            Expanded(
-                              child: Text(
-                                body.title,
-                                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                                textAlign: TextAlign.center,
+                  itemBuilder: (context, i) => i == 0
+                      ? Padding(
+                          padding: Pad(all: 8),
+                          child: Column(children: [
+                            Center(
+                              child: IntrinsicWidth(
+                                child: Row(
+                                  children: [
+                                    ContentRating(body.contentRating),
+                                    Container(width: 5),
+                                    Expanded(
+                                      child: Text(
+                                        body.title,
+                                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
-                          ],
+                            Divider(),
+                            WrapSuper(
+                              alignment: WrapSuperAlignment.center,
+                              spacing: 6,
+                              children: [
+                                InfoChip('${body.viewInfo}'),
+                                InfoChip('${body.commentCount}'),
+                              ],
+                            ),
+                            Container(height: 6),
+                            StoryTags(
+                              series: body.seriesTags,
+                              warning: body.warningTags,
+                              genre: body.genreTags,
+                              content: body.contentTags,
+                              character: body.characterTags,
+                            ),
+                            Divider(),
+                            if (body?.imageUrl != null)
+                              ConstrainedBox(
+                                constraints: BoxConstraints(maxHeight: 200, maxWidth: 200),
+                                child: IntrinsicWidth(
+                                  child: Card(
+                                      child: IntrinsicWidth(child: ExpandableImage(body.imageUrl))),
+                                ),
+                              ),
+                            Card(
+                              child: Padding(
+                                padding: EdgeInsets.all(8),
+                                child: HtmlWidget(body.description),
+                              ),
+                            ),
+                            Divider(),
+                            Text(
+                                '${body.chapters.length} Chapter${body.chapters.length > 1 ? 's' : ''}'),
+                          ]))
+                      : ChapterRow(
+                          row: body.chapters[i - 1],
+                          storyId: args.id,
+                          chapterNum: i,
+                          loggedIn: page.value.drawer.loggedIn,
                         ),
-                      ),
-                    ),
-                    Divider(),
-                    StoryTags(
-                      series: body.seriesTags,
-                      warning: body.warningTags,
-                      genre: body.genreTags,
-                      content: body.contentTags,
-                      character: body.characterTags,
-                    ),
-                    Divider(),
-                    if (body?.imageUrl != null)
-                      ConstrainedBox(
-                        constraints: BoxConstraints(maxHeight: 200, maxWidth: 200),
-                        child: IntrinsicWidth(
-                          child: Card(child: IntrinsicWidth(child: ExpandableImage(body.imageUrl))),
-                        ),
-                      ),
-                    Card(
-                      child: Padding(
-                        padding: EdgeInsets.all(8),
-                        child: HtmlWidget(body.description),
-                      ),
-                    ),
-                    Divider(),
-                    if (body.chapters != null)
-                      ExpansionTile(
-                        initiallyExpanded: true,
-                        title: Text(
-                            '${body.chapters.length} Chapter${body.chapters.length > 1 ? 's' : ''}'),
-                        children: body.chapters
-                            .asMap()
-                            .entries
-                            .map((e) => ChapterRow(
-                                  row: e.value,
-                                  storyId: args.id,
-                                  chapterNum: e.key + 1,
-                                  loggedIn: page.value.drawer.loggedIn,
-                                ))
-                            .toList(),
-                      ),
-                  ],
+                  itemCount: body.chapters != null ? body.chapters.length + 1 : 1,
                 ),
               ),
             ),
