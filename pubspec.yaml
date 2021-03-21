@@ -25,35 +25,33 @@ dependencies:
     sdk: flutter
 
   #requests
-  http: ^0.12.2
+  http: ^0.13.0
   #decode br encoding
   brotli: ^0.4.0
   #html processing
-  html: ^0.14.0+3
+  html: ^0.15.0
   #html rendering
-  flutter_widget_from_html_core: ^0.5.2
+  flutter_widget_from_html_core: ^0.6.0-rc.2021030201
   #html unescaping
-  html_unescape: ^1.0.2
+  html_unescape: ^2.0.0-nullsafety.0
   #app bar hides on scroll
   scroll_app_bar: ^1.0.3
   #hooks/provider
-  flutter_hooks: ^0.16.0-nullsafety.0
-  hooks_riverpod: ^0.13.0
-  #savedata
-  shared_preferences: ^2.0.3
+  flutter_hooks: ^0.16.0
+  hooks_riverpod: ^0.13.1
   #snackbar on top
-  another_flushbar: ^1.10.11
+  another_flushbar: ^1.10.17
   #badges (numerical indicator)
-  badges: ^1.2.0
+  badges: ^2.0.0-nullsafety.1
   #fontawesome
-  font_awesome_flutter: ^8.12.0
+  font_awesome_flutter: ^9.0.0-nullsafety
   #compare route args
   equatable: ^2.0.0
   #fullscreen image preview
   full_screen_image: ^1.0.2
   #for funsies
   assorted_layout_widgets: ^4.0.0
-  #testing new keyval storage
+  #keyval storage that actually works
   get_storage: ^2.0.1
   #for signing
   crypto: ^3.0.0

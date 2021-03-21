@@ -1,24 +1,28 @@
 import 'package:badges/badges.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:flutter/material.dart' hide Element;
+import 'package:flutter/material.dart' hide Page;
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
-import 'package:html/dom.dart' show Document, Element;
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:html/dom.dart' show Document;
 import 'package:html/parser.dart' show parse;
 import 'package:equatable/equatable.dart';
 import 'package:assorted_layout_widgets/assorted_layout_widgets.dart';
-import 'package:html_unescape/html_unescape_small.dart';
+
 //code-splitting
 import '../appDrawer.dart';
-import '../util/pageData.dart';
+import '../models/pageData.dart';
+import '../models/story.dart';
+import '../models/tags.dart';
+import '../models/chapter.dart';
 import 'chapter.dart';
 import 'home.dart';
 
 import '../util/fimHttp.dart';
 
 class StoryArgs extends Equatable {
-  final int id;
+  final String id;
   const StoryArgs(this.id);
 
   @override
@@ -31,7 +35,7 @@ class StoryScreen extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    var page = useState(PageData<Story>());
+    var page = useState(Page<Story>());
     final body = page.value?.body;
 
     refresh() async {
@@ -87,22 +91,9 @@ class StoryScreen extends HookWidget {
                               ),
                             ),
                             Divider(),
-                            WrapSuper(
-                              alignment: WrapSuperAlignment.center,
-                              spacing: 6,
-                              children: [
-                                InfoChip('${body.viewInfo}'),
-                                InfoChip('${body.commentCount}'),
-                              ],
-                            ),
+                            if (body.bar != null) Ratings(body.bar),
                             Container(height: 6),
-                            StoryTags(
-                              series: body.seriesTags,
-                              warning: body.warningTags,
-                              genre: body.genreTags,
-                              content: body.contentTags,
-                              character: body.characterTags,
-                            ),
+                            StoryTagList(tags: body.tags),
                             Divider(),
                             if (body?.imageUrl != null)
                               ConstrainedBox(
@@ -137,135 +128,14 @@ class StoryScreen extends HookWidget {
   }
 }
 
-class Story {
-  final String title, description, imageUrl, contentRating;
-  final List<String> seriesTags, warningTags, genreTags, contentTags, characterTags;
-  final List<ChapterRowData> chapters;
-  final String completedStatus,
-      approvedDate,
-      totalWordcount,
-      viewInfo,
-      commentCount,
-      likes,
-      dislikes;
+class StoryTagList extends StatelessWidget {
+  final StoryTags tags;
 
-  const Story(
-      {this.likes,
-      this.dislikes,
-      this.viewInfo,
-      this.commentCount,
-      this.seriesTags,
-      this.genreTags,
-      this.warningTags,
-      this.characterTags,
-      this.contentTags,
-      this.chapters,
-      this.completedStatus,
-      this.approvedDate,
-      this.totalWordcount,
-      this.title,
-      this.description,
-      this.imageUrl,
-      this.contentRating});
-
-  static Story fromStory(Document doc) {
-    final story = doc.querySelector('.story_container');
-
-    //top
-    final title = story.querySelector('.story_name');
-    final description = story.querySelector('.description-text');
-    final image = story.querySelector('.story_container__story_image > img');
-    final contentRating = story.querySelector('.title > a');
-
-    //info
-    final ratings = story.querySelector('.rating_container');
-    final offset = ratings.nodes[0].text.trim() == 'Ratings Disabled' ? 0 : 3;
-    final viewInfo = ratings.children[3 + offset];
-    final commentCount = ratings.children[1 + offset];
-    final likes = ratings.querySelector('.likes');
-    final dislikes = ratings.querySelector('.dislikes');
-
-    final footer = story.querySelector('.chapters-footer');
-    final completedStatus = footer.children[1];
-    final approvedDate = footer.children[2].children.last;
-    final wordcount = footer.children.last.children.first;
-
-    //tags
-    final tags = story.querySelector('.story-tags');
-    final seriesTags = tags.querySelectorAll('.tag-series');
-    final warningTags = tags.querySelectorAll('.tag-warning');
-    final genreTags = tags.querySelectorAll('.tag-genre');
-    final contentTags = tags.querySelectorAll('.tag-content');
-    final characterTags = tags.querySelectorAll('.tag-character');
-
-    //chapter
-    final chapters = story.querySelector('.chapters').children;
-    //chapters.removeWhere((c) => c.querySelector('.chapter-title') == null);
-    //removeWhere is not implemented, fuck me
-    List<int> indexesToRemove = [];
-    chapters.asMap().forEach((i, c) {
-      if (c.querySelector('.chapter-title') == null) indexesToRemove.add(i);
-    });
-    for (var i = 0; i < indexesToRemove.length; i++) {
-      final index = indexesToRemove[i] - i;
-      chapters.removeAt(index);
-    }
-
-    List<String> tagNames(List<Element> tags) => tags.map((t) => t.innerHtml).toList();
-
-    return Story(
-      title: title.innerHtml,
-      description: description.innerHtml,
-      imageUrl: image != null ? image.attributes['data-src'] : null,
-      contentRating: contentRating.innerHtml,
-      viewInfo: viewInfo.attributes['title'],
-      commentCount: commentCount.attributes['title'],
-      likes: likes?.innerHtml,
-      dislikes: dislikes?.innerHtml,
-      completedStatus: completedStatus.innerHtml,
-      approvedDate: approvedDate.innerHtml,
-      totalWordcount: wordcount.innerHtml,
-      seriesTags: tagNames(seriesTags),
-      warningTags: tagNames(warningTags),
-      genreTags: tagNames(genreTags),
-      contentTags: tagNames(contentTags),
-      characterTags: tagNames(characterTags),
-      chapters: chapters.map((c) => ChapterRowData.fromStoryRow(c)).toList(),
-    );
-  }
-
-  static PageData<Story> page(Document doc) {
-    return PageData<Story>(drawer: AppDrawerData.fromDoc(doc), body: Story.fromStory(doc));
-  }
-
-  Story copyWith({List<ChapterRowData> chapters}) => Story(
-        likes: this.likes,
-        dislikes: this.dislikes,
-        viewInfo: this.viewInfo,
-        seriesTags: this.seriesTags,
-        genreTags: this.genreTags,
-        warningTags: this.warningTags,
-        characterTags: this.characterTags,
-        contentTags: this.contentTags,
-        chapters: chapters ?? this.chapters,
-        completedStatus: this.completedStatus,
-        approvedDate: this.approvedDate,
-        totalWordcount: this.totalWordcount,
-        title: this.title,
-        description: this.description,
-        imageUrl: this.imageUrl,
-        contentRating: this.contentRating,
-      );
-}
-
-class StoryTags extends StatelessWidget {
-  final List<String> series, warning, genre, content, character;
-
-  const StoryTags({this.series, this.warning, this.genre, this.content, this.character});
+  const StoryTagList({this.tags});
 
   @override
   Widget build(BuildContext context) {
-    List<Badge> tags = [];
+    List<Badge> badges = [];
     Map<String, int> genreColors = {
       'Adventure': 0x6fb859,
       'Comedy': 0xf59c00,
@@ -294,18 +164,18 @@ class StoryTags extends StatelessWidget {
     }
 
     color = 0xb159d0;
-    tags.addAll(series.map(toBadge));
+    badges.addAll(tags.series.map(toBadge));
     color = 0xd6605a;
-    if (warning != null) tags.addAll(warning.map(toBadge));
+    if (tags.warning != null) badges.addAll(tags.warning.map(toBadge));
     color = 'genre';
-    if (genre != null) tags.addAll(genre.map(toBadge));
+    if (tags.genre != null) badges.addAll(tags.genre.map(toBadge));
     color = 0x4b4b4b;
-    if (content != null) tags.addAll(content.map(toBadge));
+    if (tags.content != null) badges.addAll(tags.content.map(toBadge));
     color = 0x23b974;
-    if (character != null) tags.addAll(character.map(toBadge));
+    if (tags.character != null) badges.addAll(tags.character.map(toBadge));
 
     return WrapSuper(
-      children: tags,
+      children: badges,
       alignment: WrapSuperAlignment.center,
       spacing: 6,
       lineSpacing: 6,
@@ -315,8 +185,9 @@ class StoryTags extends StatelessWidget {
 
 class ChapterRow extends HookWidget {
   final bool loggedIn;
-  final ChapterRowData row;
-  final int storyId, chapterNum;
+  final Chapter row;
+  final String storyId;
+  final int chapterNum;
 
   ChapterRow({this.loggedIn, this.row, this.storyId, this.chapterNum});
 
@@ -331,19 +202,19 @@ class ChapterRow extends HookWidget {
                   icon: Icon(row.read ? Icons.check_box_outlined : Icons.check_box_outline_blank),
                   onPressed: () async {
                     updatingRead.value = true;
-                    print(await row.setRead(!row.read));
+                    await row.setRead(!row.read);
                     updatingRead.value = false;
                   })
           : null,
-      title: RowSuper(
+      title: Row(
         children: [
-          Text(row.title),
-          RowSpacer(),
+          Expanded(child: Text(row.title)),
+          Spacer(),
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               InfoChip(row.date),
-              InfoChip('${row.wordcount} words'),
+              IconChip(FontAwesomeIcons.penNib, ' ${row.wordcount}'),
             ],
           ),
         ],
@@ -360,31 +231,20 @@ class ChapterRow extends HookWidget {
   }
 }
 
-class ChapterRowData {
-  final String title, date, wordcount;
-  bool read;
-  final int id;
-  ChapterRowData({this.title, this.date, this.wordcount, this.read, this.id});
+class Ratings extends HookWidget {
+  final RatingBar bar;
+  Ratings(this.bar);
 
-  static ChapterRowData fromStoryRow(Element row) {
-    final unesc = HtmlUnescape();
-    final title = row.querySelector('.chapter-title');
-    final date = row.querySelector('.date');
-    final wordcount = row.querySelector('.word-count-number');
-    final readIcon = row.querySelector('.chapter-read-icon');
-    return ChapterRowData(
-      title: unesc.convert(title.innerHtml),
-      date: date.nodes[1].text,
-      wordcount: wordcount.innerHtml.trim(),
-      read: readIcon != null ? readIcon.classes.contains('chapter-read') : null,
-      id: readIcon != null ? int.parse(readIcon.id.replaceFirst('chapter_read_', '')) : null,
+  @override
+  Widget build(BuildContext context) {
+    return WrapSuper(
+      alignment: WrapSuperAlignment.center,
+      children: [
+        IconChip(FontAwesomeIcons.solidComments, ' ${bar.totalViews}'),
+        IconChip(FontAwesomeIcons.chartBar, ' ${bar.comments}'),
+      ],
+      spacing: 6,
+      lineSpacing: 6,
     );
-  }
-
-  Future<bool> setRead(bool changedTo) async {
-    final resp = await http.ajaxRequest('chapters/$id/read', changedTo ? 'POST' : 'DELETE');
-    print(resp);
-    read = resp['read'];
-    return read;
   }
 }

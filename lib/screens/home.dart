@@ -1,23 +1,27 @@
 import 'dart:ui';
 
-import 'package:flutter/material.dart';
+import 'package:assorted_layout_widgets/assorted_layout_widgets.dart';
+import 'package:badges/badges.dart';
+import 'package:flutter/material.dart' hide Element, Page;
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:html/dom.dart' show Document;
-import 'package:html/dom.dart' as Html show Element;
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:html/dom.dart' show Document, Element;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:html/parser.dart' show parse;
 import 'package:full_screen_image/full_screen_image.dart';
+
 //code-splitting
 import '../appDrawer.dart';
-import '../util/pageData.dart';
+import '../models/pageData.dart';
 import '../util/nav.dart';
+import '../util/fimHttp.dart';
 import 'story.dart';
 
 class HomeScreen extends HookWidget {
   @override
   Widget build(BuildContext context) {
-    var page = useState(PageData<Home>());
+    var page = useState(Page<Home>());
     final body = page.value?.body;
 
     refresh() async {
@@ -89,8 +93,8 @@ class Home {
     );
   }
 
-  static PageData<Home> page(Document doc) {
-    return PageData<Home>(drawer: AppDrawerData.fromDoc(doc), body: Home.fromHome(doc));
+  static Page<Home> page(Document doc) {
+    return Page<Home>(drawer: AppDrawerData.fromDoc(doc), body: Home.fromHome(doc));
   }
 }
 
@@ -143,12 +147,18 @@ class StoryCard extends StatelessWidget {
                   ),
                   Divider(),
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       InfoChip(data.authorName),
-                      Spacer(),
-                      InfoChip(data.wordcount),
-                      Container(width: 5),
-                      InfoChip(data.viewcount),
+                      IntrinsicWidth(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            InfoChip(data.wordcount),
+                            InfoChip(data.viewcount),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 ],
@@ -172,7 +182,7 @@ class StoryCardData {
       dislikes,
       rating,
       contentRating;
-  final int authorId, storyId;
+  final String authorId, storyId;
 
   StoryCardData({
     this.title,
@@ -189,24 +199,24 @@ class StoryCardData {
     this.storyId,
   });
 
-  static StoryCardData fromCard(Html.Element doc) {
-    final bool c = doc.attributes["class"] == "story-card";
-    final storyLink = doc.querySelector(c ? ".story_link" : ".title > a");
-    final image = doc.querySelector(".story_image");
-    final desc = doc.querySelector(c ? ".short_description" : ".description");
+  static StoryCardData fromCard(Element card) {
+    final bool c = card.attributes["class"] == "story-card";
+    final storyLink = card.querySelector(c ? ".story_link" : ".title > a");
+    final image = card.querySelector(".story_image");
+    final desc = card.querySelector(c ? ".short_description" : ".description");
     final authorLink =
-        doc.querySelector(c ? ".story-card__author" : ".author") ?? doc.querySelector(".author");
-    final info = doc.querySelector(c ? ".story-card__info" : ".info");
-    final ratingBar = c ? doc.querySelector(".rating-bar") : null;
-    final contentRatingSpan = doc.querySelector(".${c ? "story-card__" : ""}title > span");
+        card.querySelector(c ? ".story-card__author" : ".author") ?? card.querySelector(".author");
+    final info = card.querySelector(c ? ".story-card__info" : ".info");
+    final ratingBar = c ? card.querySelector(".rating-bar") : null;
+    final contentRatingSpan = card.querySelector(".${c ? "story-card__" : ""}title > span");
 
     return StoryCardData(
       title: storyLink.innerHtml,
-      storyId: int.parse(storyLink.attributes["href"].split("/")[2]),
+      storyId: storyLink.attributes["href"].split("/")[2],
       imageUrl: image != null ? image.attributes["src"] ?? image.attributes["data-src"] : "",
       description: (c ? desc.nodes[desc.nodes.length == 1 ? 0 : 2] : desc.nodes.last).text.trim(),
       authorName: authorLink.innerHtml,
-      authorId: int.parse(authorLink.attributes["href"].split("/")[2]),
+      authorId: authorLink.attributes["href"].split("/")[2],
       wordcount: info.nodes[c ? 4 : 3].text.trim(),
       viewcount: (c ? info.nodes.last : info.nodes[5]).text.trim(),
       likes: c
@@ -237,6 +247,27 @@ class InfoChip extends StatelessWidget {
       label: label is Widget ? label : Text('$label'),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(3)),
       labelPadding: EdgeInsets.zero,
+    );
+  }
+}
+
+class IconChip extends StatelessWidget {
+  final label;
+  final IconData icon;
+  final double padding;
+  IconChip(this.icon, this.label, {this.padding});
+
+  @override
+  Widget build(BuildContext context) {
+    return Badge(
+      toAnimate: false,
+      badgeContent: IntrinsicWidth(
+          child: Row(children: [FaIcon(icon, size: 12), label is Widget ? label : Text('$label')])),
+      shape: BadgeShape.square,
+      badgeColor: Theme.of(context).chipTheme.backgroundColor,
+      borderRadius: BorderRadius.circular(3),
+      elevation: 0,
+      padding: Pad(all: padding ?? 4),
     );
   }
 }

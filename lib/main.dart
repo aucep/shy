@@ -11,13 +11,14 @@ void main() async {
   await sharedPrefs.init();
   runApp(ProviderScope(
       child: MaterialApp(
-    title: "fimfic",
-    initialRoute: "/",
+    title: 'fimfic',
+    initialRoute: '/chapter',
     onGenerateRoute: (RouteSettings settings) {
       var routes = <String, WidgetBuilder>{
-        "/": (_) => HomeScreen(),
-        "/chapter": (_) => ChapterScreen(settings.arguments),
-        "/story": (_) => StoryScreen(settings.arguments),
+        '/': (_) => HomeScreen(),
+        '/chapter': (_) => ChapterScreen(
+            settings.arguments ?? ChapterScreenArgs(chapterNum: 1, storyId: '395988')),
+        '/story': (_) => StoryScreen(settings.arguments),
       };
       WidgetBuilder builder = routes[settings.name];
       return MaterialPageRoute(builder: (ctx) => builder(ctx), settings: settings);

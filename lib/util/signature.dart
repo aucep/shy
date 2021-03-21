@@ -38,8 +38,6 @@ class SignSet {
 
   //https://stackoverflow.com/questions/10247073/urlencoding-in-dart lol
   static String encodeMap(Map data) => data.keys
-      .map(
-        (key) => '${Uri.encodeComponent(key)}=${Uri.encodeComponent(data[key])}',
-      )
+      .map((key) => Uri.encodeComponent(key) + '=' + Uri.encodeComponent(data[key]))
       .join('&');
 }

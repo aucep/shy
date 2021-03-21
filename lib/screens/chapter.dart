@@ -1,20 +1,32 @@
+import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Page;
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:html/dom.dart' show Document;
 import 'package:html/parser.dart' show parse;
 import 'package:scroll_app_bar/scroll_app_bar.dart';
 import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
+
 //code-splitting
 import '../appDrawer.dart';
-import '../util/pageData.dart';
+import '../models/pageData.dart';
+import '../models/chapter.dart';
+import '../models/story.dart';
+import 'story.dart';
+import '../util/nav.dart';
+import '../util/fimHttp.dart';
+import '../widgets/cheatTitle.dart';
 
-//fimfiction.net/story/[storyID]/[chapterNum]
-class ChapterScreenArgs {
-  final int storyId, chapterNum;
+//fimfiction.net/story/[storyID]/[chapterNum]/
+class ChapterScreenArgs extends Equatable {
+  final String storyId;
+  final int chapterNum;
 
   ChapterScreenArgs({this.storyId, this.chapterNum});
+
+  @override
+  List<Object> get props => [storyId, chapterNum];
 }
 
 class ChapterScreen extends HookWidget {
@@ -25,42 +37,49 @@ class ChapterScreen extends HookWidget {
   Widget build(BuildContext context) {
     final controller = useScrollController();
     var chapterNum = useState(args.chapterNum);
+    var page = useState(Page<Chapter>());
+    var loading = useState(false);
 
-    var page = useState(PageData<Chapter>());
     final body = page.value?.body;
     refresh() async {
+      loading.value = true;
       Document doc;
       if (kIsWeb) {
-        doc = parse(await rootBundle.loadString("saved_html/chapter.html"));
+        doc = parse(await rootBundle.loadString('saved_html/chapter.html'));
       } else {
-        doc = await fetchDoc("story/${args.storyId}/${chapterNum.value}/");
+        doc = await fetchDoc('story/${args.storyId}/${chapterNum.value}/');
       }
 
       page.value = Chapter.page(doc);
+      loading.value = false;
     }
 
     useEffect(() {
       refresh();
       return null;
-    }, [chapterNum]);
+    }, [chapterNum.value]);
 
     return Scaffold(
       appBar: ScrollAppBar(
         controller: controller,
         titleSpacing: 0,
-        title: CheatTitle("story/${args.storyId}/${chapterNum.value}/"),
+        title: CheatTitle('story/${args.storyId}/${chapterNum.value}/'),
         centerTitle: true,
         automaticallyImplyLeading: false,
       ),
-      body: body == null
+      body: loading.value == true || body == null
           ? Center(child: CircularProgressIndicator())
           : RefreshIndicator(
-              onRefresh: refresh, child: Paragraphs(html: body.paragraphs, controller: controller)),
-      drawer: AppDrawer(data: page.value.drawer),
-      endDrawer: Drawer(
-          child: ListView(
-        children: [DrawerHeader(child: Center(child: Text("right drawer")))],
-      )),
+              onRefresh: refresh,
+              child: Paragraphs(
+                html: body.paragraphs,
+                controller: controller,
+              ),
+            ),
+      drawer: AppDrawer(data: page.value?.drawer, refresh: refresh),
+      endDrawer: body != null
+          ? ChapterDrawer(story: body.story, chapterNum: chapterNum, chapterTitle: body.title)
+          : Drawer(),
     );
   }
 }
@@ -93,66 +112,54 @@ class Paragraphs extends StatelessWidget {
   }
 }
 
-class ChapterStory {
-  final String title,
-      description, //could be html! hopefully not
-      authorName,
-      authorId;
-  final List<String> chapterTitles;
-  final String storyId;
+class ChapterDrawer extends HookWidget {
+  final Story story;
+  final ValueNotifier<int> chapterNum;
+  final String chapterTitle;
+  ChapterDrawer({this.story, this.chapterNum, this.chapterTitle});
 
-  ChapterStory(
-      {this.title,
-      this.authorName,
-      this.authorId,
-      this.description,
-      this.chapterTitles,
-      this.storyId});
-
-  static ChapterStory fromChapter(Document doc) {
-    final infoContainer = doc.querySelector(".info-container");
-    final storyLink = infoContainer.querySelector("div > h1 > a");
-    final authorLink = infoContainer.querySelector(".author > a");
-    final description = infoContainer.querySelector("div > div > p");
-    final chapterSelector = doc.querySelector(".chapter-selector ul");
-    final chapters =
-        chapterSelector != null ? chapterSelector.children.where((t) => t != null).toList() : [];
-    return ChapterStory(
-        title: storyLink.innerHtml,
-        storyId: storyLink.attributes["href"].split("/")[2],
-        authorName: authorLink.innerHtml,
-        authorId: authorLink.attributes["href"].split("/")[2],
-        description: description.innerHtml,
-        chapterTitles: List<String>.from(
-            chapters.map((t) => t.querySelector(".chapter-selector__title").innerHtml)));
-  }
-}
-
-class Chapter {
-  final ChapterStory story; //in right drawer
-  final String title, note;
-  final bool notePosition;
-  final List<String> paragraphs;
-
-  Chapter({this.story, this.title, this.note, this.notePosition, this.paragraphs});
-
-  static Chapter fromChapter(Document doc) {
-    final title = doc.querySelector("#chapter_title");
-    final authorsNote = doc.querySelector('.authors-note');
-    final noteOnTop =
-        authorsNote != null ? authorsNote.attributes["style"].startsWith("margin-top") : false;
-    final body = doc.querySelector("#chapter-body > div");
-    final paragraphs = body.children.map((p) => p.outerHtml).toList();
-    return Chapter(
-      story: ChapterStory.fromChapter(doc),
-      title: title.innerHtml,
-      note: authorsNote?.innerHtml ?? "",
-      notePosition: noteOnTop,
-      paragraphs: paragraphs,
+  @override
+  Widget build(BuildContext context) {
+    return Drawer(
+      child: ListView(children: [
+        DrawerHeader(
+          child: ListView(children: [
+            TextButton(
+              child: Text(
+                story.title,
+                style: TextStyle(
+                  fontSize: 15,
+                ),
+              ),
+              onPressed: () =>
+                  Navigator.of(context).pushNamedIfNew('/story', args: StoryArgs(story.id)),
+            ),
+            Text(story.description),
+          ]),
+        ),
+        Center(
+          child: Text(
+            chapterTitle,
+            style: TextStyle(
+              fontSize: 15,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ),
+        story.chapters.length > 0
+            ? ButtonBar(mainAxisSize: MainAxisSize.min, children: [
+                IconButton(
+                  icon: Icon(Icons.arrow_back),
+                  onPressed: chapterNum.value == 1 ? null : () => chapterNum.value--,
+                ),
+                IconButton(
+                  icon: Icon(Icons.arrow_forward),
+                  onPressed:
+                      chapterNum.value == story.chapters.length ? null : () => chapterNum.value++,
+                )
+              ])
+            : Container(),
+      ]),
     );
-  }
-
-  static PageData<Chapter> page(Document doc) {
-    return PageData<Chapter>(drawer: AppDrawerData.fromDoc(doc), body: Chapter.fromChapter(doc));
   }
 }

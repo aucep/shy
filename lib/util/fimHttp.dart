@@ -1,6 +1,8 @@
 import 'dart:convert' show jsonDecode, utf8;
 
 import 'package:brotli/brotli.dart';
+import 'package:html/dom.dart';
+import 'package:html/parser.dart';
 import 'package:http/http.dart'
     show BaseClient, BaseRequest, Client, Request, Response, StreamedResponse;
 //code-splitting
@@ -8,6 +10,8 @@ import 'sharedPrefs.dart';
 import 'signature.dart';
 
 const useAuth = true;
+
+final http = FimFicClient(Client());
 
 class FimFicClient extends BaseClient {
   final String userAgent = "Shy/0.0";
@@ -30,7 +34,9 @@ class FimFicClient extends BaseClient {
     return _inner.send(request);
   }
 
-  Future<dynamic> ajaxRequest(String path, String method, {Map<String, String> body}) async {
+  Future<FimFicResponse> ajaxRequest(String path, String method,
+      {Map<String, String> body, bool jsonResponse}) async {
+    jsonResponse ??= true;
     body ??= Map<String, String>.of({});
     final set = SignSet.sign(data: body, path: path);
     body['signature'] = set.signature;
@@ -47,17 +53,48 @@ class FimFicClient extends BaseClient {
     final elapsed = DateTime.now().millisecondsSinceEpoch - start.millisecondsSinceEpoch;
     print('resp after $elapsed ms');
 
-    print(resp.headers['content-encoding']); //gzip, zlib already covered by http.dart
+    final encoding = resp.headers['content-encoding'];
+    print('encoding: $encoding'); //gzip, zlib already covered by http.dart
     String respBody;
-    switch (resp.headers['content-encoding']) {
-      case "br":
+    switch (encoding) {
+      case 'br':
         respBody = utf8.decode(brotli.decodeToString(resp.bodyBytes).codeUnits);
         break;
       default:
         respBody = resp.body;
     }
-    return jsonDecode(respBody);
+    print('body: $respBody');
+    final json = jsonDecode(respBody);
+    print(json.runtimeType);
+    return FimFicResponse(
+      json: json,
+      setCookie: resp.headers.containsKey('set-cookie') ? resp.headers['set-cookie'] : null,
+    );
   }
 }
 
-final http = FimFicClient(Client());
+class FimFicResponse {
+  final Map<String, dynamic> json;
+  final String setCookie;
+  const FimFicResponse({this.json, this.setCookie});
+}
+
+Future<Document> fetchDoc(String path) async {
+  print('fetching /$path');
+  final start = DateTime.now();
+  final resp = await http.get(Uri.parse('https://fimfiction.net/$path'));
+  final elapsed = DateTime.now().millisecondsSinceEpoch - start.millisecondsSinceEpoch;
+  print('downloaded after $elapsed ms');
+
+  print(resp.headers['content-encoding']); //gzip, zlib already covered by http.dart
+  String body;
+  switch (resp.headers['content-encoding']) {
+    case 'br':
+      body = utf8.decode(brotli.decodeToString(resp.bodyBytes).codeUnits);
+      break;
+    default:
+      body = resp.body;
+  }
+
+  return parse(body);
+}
