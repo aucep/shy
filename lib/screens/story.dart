@@ -91,7 +91,7 @@ class StoryScreen extends HookWidget {
                               ),
                             ),
                             Divider(),
-                            if (body.bar != null) Ratings(body.bar),
+                            if (body != null) Ratings(body),
                             Container(height: 6),
                             StoryTagList(tags: body.tags),
                             Divider(),
@@ -232,16 +232,16 @@ class ChapterRow extends HookWidget {
 }
 
 class Ratings extends HookWidget {
-  final RatingBar bar;
-  Ratings(this.bar);
+  final Story story;
+  Ratings(this.story);
 
   @override
   Widget build(BuildContext context) {
     return WrapSuper(
       alignment: WrapSuperAlignment.center,
       children: [
-        IconChip(FontAwesomeIcons.solidComments, ' ${bar.totalViews}'),
-        IconChip(FontAwesomeIcons.chartBar, ' ${bar.comments}'),
+        IconChip(FontAwesomeIcons.solidComments, ' ${story.totalViews}'),
+        IconChip(FontAwesomeIcons.chartBar, ' ${story.comments}'),
       ],
       spacing: 6,
       lineSpacing: 6,

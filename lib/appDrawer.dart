@@ -6,11 +6,12 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:another_flushbar/flushbar.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:html/dom.dart' show Document;
-import 'package:html_unescape/html_unescape_small.dart';
 //code-splitting
 import 'screens/chapter.dart';
 import 'util/fimHttp.dart';
+import 'util/icons.dart';
 import 'util/sharedPrefs.dart';
+import 'models/bookshelf.dart';
 
 class AppDrawer extends HookWidget {
   final AppDrawerData data;
@@ -110,7 +111,7 @@ class DrawerRouteItem extends StatelessWidget {
 class AppDrawerData {
   final bool loggedIn;
   final String username, avatarUrl, bgColor, userId;
-  final List<BookshelfData> shelves;
+  final List<Bookshelf> shelves;
 
   AppDrawerData(
       {this.loggedIn, this.username, this.avatarUrl, this.bgColor, this.userId, this.shelves});
@@ -129,36 +130,9 @@ class AppDrawerData {
         bgColor: user['backgroundColor'],
         shelves: shelves
             .map(
-              (s) => BookshelfData.fromMap(s),
+              (s) => Bookshelf.fromMap(s),
             )
             .toList());
-  }
-}
-
-class BookshelfData {
-  String name;
-  final String icon, iconStyle, iconType;
-  final int numUnread, id;
-
-  BookshelfData({this.name, this.numUnread, this.icon, this.iconStyle, this.iconType, this.id});
-
-  static BookshelfData fromMap(s) {
-    final unesc = HtmlUnescape();
-
-    final iconHtml = s['iconHtml'].split('"');
-    final iconType = iconHtml[1];
-    final iconClasses = iconHtml[3].split(' ');
-
-    return BookshelfData(
-      name: s['name'],
-      icon: iconType == 'font-awesome'
-          ? iconClasses.last
-          : unesc.convert(iconHtml.last.split('>')[2].replaceFirst(r'</span', '') + ';'),
-      iconStyle: s['style'],
-      iconType: iconType,
-      id: int.parse(s['url'].split('/')[2]),
-      numUnread: int.parse(s['numUnread'].toString()),
-    );
   }
 }
 
@@ -221,7 +195,8 @@ class LoginDialog extends HookWidget {
           onPressed: () async {
             if (_formKey.currentState.validate()) {
               final err = await _login(username, password, rememberMe);
-              if (err.isEmpty) {
+              //golang, baby
+              if (err != null) {
                 Navigator.pop(context);
                 refresh();
               } else {
@@ -244,20 +219,22 @@ class LoginDialog extends HookWidget {
       'password': password,
       'keep_logged_in': rememberMe.toString(),
     });
+    final json = resp.json;
 
-    if (resp.json.containsKey('error')) {
-      print(resp.json['error']);
-      return resp.json['error'];
+    if (json.containsKey('error')) {
+      final err = json['error'];
+      print(err);
+      return err;
     }
     match(s) => RegExp('(?<=$s=(?!.*$s)).+?(?=\;)').firstMatch(resp.setCookie).group(0);
     sharedPrefs.sessionToken = match('session_token');
-    sharedPrefs.signingKey = resp.json['signing_key'];
-    return '';
+    sharedPrefs.signingKey = json['signing_key'];
+    return null;
   }
 }
 
 class BookshelvesTile extends StatelessWidget {
-  final List<BookshelfData> shelves;
+  final List<Bookshelf> shelves;
   BookshelvesTile({this.shelves});
 
   final GlobalKey libraryKey = GlobalKey();
@@ -266,7 +243,7 @@ class BookshelvesTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     //hide shelves?
-    List<BookshelfData> hiddenShelves;
+    List<Bookshelf> hiddenShelves;
     final hidableShelves = sharedPrefs.hidableShelves;
     if (hidableShelves) {
       final prefix = sharedPrefs.shelfHidePrefix;
@@ -320,7 +297,7 @@ class BookshelvesTile extends StatelessWidget {
 }
 
 class ShelfTile extends StatelessWidget {
-  final BookshelfData s;
+  final Bookshelf s;
   ShelfTile(this.s);
 
   @override
@@ -328,24 +305,24 @@ class ShelfTile extends StatelessWidget {
     return ListTile(
         leading: s.numUnread > 0
             ? Badge(
-                child: ShelfIcon(icon: s.icon, type: s.iconType),
+                child: ShelfIcon(s.icon),
                 badgeContent: Text('${s.numUnread}', style: TextStyle(fontSize: 11)),
                 padding: EdgeInsets.all(3),
               )
-            : ShelfIcon(icon: s.icon, type: s.iconType),
+            : ShelfIcon(s.icon),
         title: Text(s.name),
         onTap: () {});
   }
 }
 
 class ShelfIcon extends StatelessWidget {
-  final String icon, style, type;
-  ShelfIcon({this.icon, this.style, this.type});
+  final BookshelfIcon icon;
+  ShelfIcon(this.icon);
 
   @override
   Widget build(BuildContext context) {
-    return type == 'font-awesome'
-        ? FaIcon(FontAwesomeIcons.book)
-        : Text(icon, style: TextStyle(fontSize: 20));
+    return icon.isPony
+        ? Text(icon.icon, style: TextStyle(fontSize: 20, color: icon.color))
+        : FaIcon(icons[icon.icon.trim()] ?? FontAwesomeIcons.airbnb, color: icon.color);
   }
 }

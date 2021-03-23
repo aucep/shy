@@ -1,6 +1,7 @@
 import 'package:html/dom.dart';
 
 //code-splitting
+import '../util/fimHttp.dart';
 import '../appDrawer.dart';
 import 'chapter.dart';
 import 'tags.dart';
@@ -12,14 +13,27 @@ class Story {
   final StoryTags tags;
   final List<Chapter> chapters;
   final String completedStatus, approvedDate, wordcount;
-  final RatingBar bar;
+  final bool hot, ratingsDisabled;
+  String likes, dislikes;
+  bool liked, disliked;
+  final double rating;
+  final String recentViews, totalViews, comments;
   //for chapter
   final String id;
 
-  const Story({
+  Story({
+    this.hot,
+    this.ratingsDisabled,
+    this.likes,
+    this.dislikes,
+    this.liked,
+    this.disliked,
+    this.rating,
+    this.recentViews,
+    this.totalViews,
+    this.comments,
     this.authorName,
     this.authorId,
-    this.bar,
     this.tags,
     this.chapters,
     this.completedStatus,
@@ -43,9 +57,7 @@ class Story {
     final image = story.querySelector('.story_container__story_image > img');
     final contentRating = story.querySelector('.title > a');
 
-    //info
-    final ratings = story.querySelector('.rating_container');
-
+    //footer
     final footer = story.querySelector('.chapters-footer');
     final completedStatus = footer.children[1];
     final approvedDate = footer.children[2].children.last;
@@ -67,17 +79,31 @@ class Story {
       chapters.removeAt(index);
     }
 
+    //rating_container
+    final ratings = story.querySelector('.rating_container');
+    final ratingBar = RatingBar.fromRatingBar(ratings);
+
     return Story(
+      id: title.attributes['href'].split('/')[2],
       title: title.innerHtml,
       description: description.innerHtml,
       imageUrl: image != null ? image.attributes['data-src'] : null,
       contentRating: contentRating.innerHtml,
-      bar: RatingBar.fromRatingBar(ratings),
       completedStatus: completedStatus.innerHtml,
       approvedDate: approvedDate.innerHtml,
       wordcount: wordcount.innerHtml,
       tags: StoryTags.fromTags(tags),
       chapters: chapters.map((c) => Chapter.fromStoryRow(c)).toList(),
+      hot: ratingBar.hot,
+      ratingsDisabled: ratingBar.ratingsDisabled,
+      likes: ratingBar.likes,
+      liked: ratingBar.liked,
+      dislikes: ratingBar.dislikes,
+      disliked: ratingBar.disliked,
+      rating: ratingBar.rating,
+      comments: ratingBar.comments,
+      recentViews: ratingBar.recentViews,
+      totalViews: ratingBar.totalViews,
     );
   }
 
@@ -96,15 +122,63 @@ class Story {
     final chapters =
         chapterSelector == null ? [] : chapterSelector.children.where((t) => t != null).toList();
     final ratings = doc.querySelector('.rating_container');
+    final ratingBar = RatingBar.fromRatingBar(ratings);
+
+    final id = storyLink.attributes['href'].split('/')[2];
     return Story(
       title: storyLink.innerHtml,
-      id: storyLink.attributes['href'].split('/')[2],
+      id: id,
       authorName: authorLink.innerHtml,
       authorId: authorLink.attributes['href'].split('/')[2],
       description: description.innerHtml,
       chapters: chapters.map((c) => Chapter.fromChapterRow(c)).toList(),
-      bar: RatingBar.fromRatingBar(ratings),
+      hot: ratingBar.hot,
+      ratingsDisabled: ratingBar.ratingsDisabled,
+      likes: ratingBar.likes,
+      liked: ratingBar.liked,
+      dislikes: ratingBar.dislikes,
+      disliked: ratingBar.disliked,
+      rating: ratingBar.rating,
+      comments: ratingBar.comments,
+      recentViews: ratingBar.recentViews,
+      totalViews: ratingBar.totalViews,
     );
+  }
+
+  //actions (return error)
+  Future<String> like() async {
+    final resp = await http.ajaxRequest('story/$id/like', 'POST');
+    final json = resp.json;
+    if (json.containsKey('error')) {
+      final err = json['error'];
+      print(err);
+      return err;
+    }
+    likes = '${json['likes']}';
+    liked = json['liked'];
+    dislikes = '${json['dislikes']}';
+    disliked = json['disliked'];
+    return null;
+  }
+
+  Future<String> dislike() async {
+    final resp = await http.ajaxRequest('story/$id/dislike', 'POST');
+    final json = resp.json;
+    if (json.containsKey('error')) {
+      final err = json['error'];
+      print(err);
+      return err;
+    }
+    likes = '${json['likes']}';
+    liked = json['liked'];
+    dislikes = '${json['dislikes']}';
+    disliked = json['disliked'];
+    return null;
+  }
+
+  Future<Map<String, dynamic>> getShelvesModal() async {
+    final resp = await http.ajaxRequest('bookshelves/add-story-popup', 'POST', body: {'story': id});
+    return resp.json;
   }
 }
 
@@ -115,7 +189,7 @@ class RatingBar {
   final double rating;
   final String recentViews, totalViews, comments;
 
-  const RatingBar({
+  RatingBar({
     this.hot,
     this.ratingsDisabled,
     this.likes,

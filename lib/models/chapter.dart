@@ -69,8 +69,13 @@ class Chapter {
 
   Future<bool> setRead(bool changedTo) async {
     final resp = await http.ajaxRequest('chapters/$id/read', changedTo ? 'POST' : 'DELETE');
-    read = resp.json['read'];
-    return read;
+    final json = resp.json;
+    if (json.containsKey('error')) {
+      print(json['error']);
+      return json['error'];
+    }
+    read = json['read'];
+    return null;
   }
 
   //chapter row from chapter
