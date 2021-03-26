@@ -9,6 +9,7 @@ import 'package:html/dom.dart' show Document;
 import 'package:html/parser.dart' show parse;
 import 'package:equatable/equatable.dart';
 import 'package:assorted_layout_widgets/assorted_layout_widgets.dart';
+import 'package:shy/util/snackbar.dart';
 
 //code-splitting
 import '../appDrawer.dart';
@@ -16,10 +17,12 @@ import '../models/pageData.dart';
 import '../models/story.dart';
 import '../models/tags.dart';
 import '../models/chapter.dart';
+import '../widgets/cheatTitle.dart';
+import '../widgets/shelvesModal.dart';
+import '../util/fimHttp.dart';
+import '../util/sharedPrefs.dart';
 import 'chapter.dart';
 import 'home.dart';
-
-import '../util/fimHttp.dart';
 
 class StoryArgs extends Equatable {
   final String id;
@@ -53,6 +56,8 @@ class StoryScreen extends HookWidget {
       print('parsed after $elapsed ms');
     }
 
+    void raiseError(String err) => showSnackbar(context, 'err: $err');
+
     useEffect(() {
       refresh();
       return;
@@ -60,7 +65,9 @@ class StoryScreen extends HookWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('story'),
+        automaticallyImplyLeading: false,
+        titleSpacing: 0,
+        title: CheatTitle('story'),
       ),
       body: body == null
           ? Center(child: CircularProgressIndicator())
@@ -95,7 +102,14 @@ class StoryScreen extends HookWidget {
                             Container(height: 6),
                             StoryTagList(tags: body.tags),
                             Divider(),
-                            if (body?.imageUrl != null)
+                            IconButton(
+                              icon: Icon(Icons.library_add_outlined),
+                              onPressed: () => showModalBottomSheet(
+                                context: context,
+                                builder: (_) => AddToShelvesModal(body, raiseError),
+                              ),
+                            ),
+                            if (body?.imageUrl != null && sharedPrefs.showImages)
                               ConstrainedBox(
                                 constraints: BoxConstraints(maxHeight: 200, maxWidth: 200),
                                 child: IntrinsicWidth(

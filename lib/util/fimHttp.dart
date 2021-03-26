@@ -1,4 +1,5 @@
 import 'dart:convert' show jsonDecode, utf8;
+import 'dart:math';
 
 import 'package:brotli/brotli.dart';
 import 'package:html/dom.dart';
@@ -35,19 +36,22 @@ class FimFicClient extends BaseClient {
   }
 
   Future<FimFicResponse> ajaxRequest(String path, String method,
-      {Map<String, String> body, bool jsonResponse}) async {
-    jsonResponse ??= true;
-    body ??= Map<String, String>.of({});
-    final set = SignSet.sign(data: body, path: path);
-    body['signature'] = set.signature;
-    body['signature_nonce'] = set.nonce;
-    body['signature_timestamp'] = set.timestamp;
+      {Map<String, String> body, bool signSet}) async {
+    body ??= <String, String>{};
+    if (signSet ?? true) {
+      final set = SignSet.sign(data: body, path: path);
+      body['signature'] = set.signature;
+      body['signature_nonce'] = set.nonce;
+      body['signature_timestamp'] = set.timestamp;
+    }
 
     final start = DateTime.now();
     print('$method $path $body');
 
-    final request = Request(method, Uri.parse('https://www.fimfiction.net/ajax/$path'));
+    final uri = Uri.parse('https://www.fimfiction.net/ajax/$path');
+    final request = Request(method, uri);
     request.bodyFields = body;
+    print(request.body ?? 'body is null');
     final resp = await Response.fromStream(await send(request));
 
     final elapsed = DateTime.now().millisecondsSinceEpoch - start.millisecondsSinceEpoch;
@@ -63,7 +67,13 @@ class FimFicClient extends BaseClient {
       default:
         respBody = resp.body;
     }
-    print('body: $respBody');
+
+    final type = resp.headers['content-type'];
+    print('type: $type');
+    if (type.startsWith('text/html')) {
+      return FimFicResponse(is404: true);
+    }
+    print('body: ${respBody.substring(0, min(respBody.length, 100))}');
     final json = jsonDecode(respBody);
     print(json.runtimeType);
     return FimFicResponse(
@@ -76,7 +86,8 @@ class FimFicClient extends BaseClient {
 class FimFicResponse {
   final Map<String, dynamic> json;
   final String setCookie;
-  const FimFicResponse({this.json, this.setCookie});
+  final bool is404;
+  const FimFicResponse({this.json, this.setCookie, this.is404});
 }
 
 Future<Document> fetchDoc(String path) async {

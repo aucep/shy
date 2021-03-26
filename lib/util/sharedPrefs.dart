@@ -28,12 +28,15 @@ class SharedPrefs {
   bool get hidableShelves => _sp.read(keyHidableShelves) ?? true;
   set hidableShelves(bool v) => _sp.write(keyHidableShelves, v);
 
-  //
   String get shelfHidePrefix => _sp.read(keyShelfHidePrefix) ?? "#";
   set shelfHidePrefix(String v) => _sp.write(keyShelfHidePrefix, v);
 
   bool get shelfTrimHidePrefix => _sp.read(keyShelfTrimHidePrefix) ?? true;
   set shelfTrimHidePrefix(bool v) => _sp.write(keyShelfTrimHidePrefix, v);
+
+  //global life-savers
+  bool get showImages => _sp.read(keyShowImages) ?? true;
+  set showImages(bool v) => _sp.write(keyShowImages, v);
 
   clear() {
     _sp.erase();
@@ -51,3 +54,5 @@ const keyShowShelves = "show_shelves";
 const keyHidableShelves = "hidable_shelves";
 const keyShelfHidePrefix = "shelf_hide_prefix";
 const keyShelfTrimHidePrefix = "shelf_trim_hide_prefix";
+//global
+const keyShowImages = "show_images";

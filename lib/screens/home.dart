@@ -16,6 +16,7 @@ import '../appDrawer.dart';
 import '../models/pageData.dart';
 import '../util/nav.dart';
 import '../util/fimHttp.dart';
+import '../util/sharedPrefs.dart';
 import 'story.dart';
 
 class HomeScreen extends HookWidget {
@@ -316,7 +317,7 @@ class ExpandableImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return sharedPrefs.showImages ? Container(
       child: FullScreenWidget(
         child: Hero(tag: url, child: Image.network(url, fit: BoxFit.contain)),
         backgroundColor: Color.fromARGB(0, 0, 0, 0),
@@ -324,6 +325,6 @@ class ExpandableImage extends StatelessWidget {
       ),
       decoration: BoxDecoration(borderRadius: BorderRadius.circular(8)),
       clipBehavior: Clip.antiAlias,
-    );
+    ):Container();
   }
 }

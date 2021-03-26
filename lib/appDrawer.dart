@@ -3,7 +3,6 @@ import 'dart:convert' show jsonDecode;
 import 'package:badges/badges.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:another_flushbar/flushbar.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:html/dom.dart' show Document;
 //code-splitting
@@ -12,6 +11,7 @@ import 'util/fimHttp.dart';
 import 'util/icons.dart';
 import 'util/sharedPrefs.dart';
 import 'models/bookshelf.dart';
+import 'util/snackbar.dart';
 
 class AppDrawer extends HookWidget {
   final AppDrawerData data;
@@ -42,7 +42,7 @@ class AppDrawer extends HookWidget {
                 Center(
                   child: Column(
                     children: [
-                      if (data.avatarUrl != null)
+                      if (sharedPrefs.showImages && data.avatarUrl != null)
                         Image.network(data.avatarUrl, width: 90, height: 90),
                       Text(data.username ?? 'not logged in'),
                     ],
@@ -200,11 +200,7 @@ class LoginDialog extends HookWidget {
                 Navigator.pop(context);
                 refresh();
               } else {
-                Flushbar(
-                  message: 'error: $err',
-                  duration: Duration(seconds: 4),
-                  animationDuration: Duration(milliseconds: 350),
-                ).show(context);
+                showSnackbar(context, 'error: $err');
               }
             }
           },
@@ -246,15 +242,7 @@ class BookshelvesTile extends StatelessWidget {
     List<Bookshelf> hiddenShelves;
     final hidableShelves = sharedPrefs.hidableShelves;
     if (hidableShelves) {
-      final prefix = sharedPrefs.shelfHidePrefix;
-      //extract all shelves with prefix
-      hiddenShelves = shelves.where((s) => s.name.startsWith(prefix)).toList();
-      shelves.removeWhere((s) => s.name.startsWith(prefix));
-
-      if (sharedPrefs.shelfTrimHidePrefix) {
-        //trim prefix
-        hiddenShelves.forEach((s) => s.name = s.name.replaceFirst(prefix, ''));
-      }
+      hiddenShelves = shelves.extractHidden();
     }
 
     //shelves to tiles
@@ -311,7 +299,9 @@ class ShelfTile extends StatelessWidget {
               )
             : ShelfIcon(s.icon),
         title: Text(s.name),
-        onTap: () {});
+        onTap: () {
+          showSnackbar(context, 'bookshelf screen not implemented yet');
+        });
   }
 }
 

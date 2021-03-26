@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart' show Color;
 import 'package:html/dom.dart';
 //code-splitting
 import '../util/fimHttp.dart';
+import '../util/sharedPrefs.dart';
 
 class Bookshelf {
   String name;
@@ -96,5 +97,21 @@ class BookshelfIcon {
   //https://stackoverflow.com/questions/50381968/flutter-dart-convert-hex-color-string-to-color
   static Color hexToColor(String code) {
     return new Color(int.parse(code.substring(0, 6), radix: 16) + 0xFF000000);
+  }
+}
+
+extension ShelfHiding on List<Bookshelf> {
+  List<Bookshelf> extractHidden() {
+    final prefix = sharedPrefs.shelfHidePrefix;
+    //extract all shelves with prefix
+    final hiddenShelves = this.where((s) => s.name.startsWith(prefix)).toList();
+    this.removeWhere((s) => s.name.startsWith(prefix));
+
+    if (sharedPrefs.shelfTrimHidePrefix) {
+      //trim prefix
+      hiddenShelves.forEach((s) => s.name = s.name.replaceFirst(prefix, ''));
+    }
+
+    return hiddenShelves;
   }
 }

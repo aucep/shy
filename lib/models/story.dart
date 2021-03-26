@@ -3,6 +3,7 @@ import 'package:html/dom.dart';
 //code-splitting
 import '../util/fimHttp.dart';
 import '../appDrawer.dart';
+import 'bookshelf.dart';
 import 'chapter.dart';
 import 'tags.dart';
 import 'pageData.dart';
@@ -176,9 +177,27 @@ class Story {
     return null;
   }
 
-  Future<Map<String, dynamic>> getShelvesModal() async {
-    final resp = await http.ajaxRequest('bookshelves/add-story-popup', 'POST', body: {'story': id});
-    return resp.json;
+  //returns String error or List<Bookshelf> result
+  Future<dynamic> getShelves() async {
+    print('story: $id');
+    final resp = await http.ajaxRequest(
+      'bookshelves/add-story-popup?story=$id',
+      'GET',
+      signSet: false,
+    );
+
+    if (resp.is404 ?? false) {
+      return '404';
+    }
+
+    final json = resp.json;
+    if (json.containsKey('error')) {
+      final err = json['error'];
+      print(err);
+      return err;
+    }
+
+    return Bookshelf.fromPopupList(Element.html(json['content']));
   }
 }
 

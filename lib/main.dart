@@ -12,13 +12,13 @@ void main() async {
   runApp(ProviderScope(
       child: MaterialApp(
     title: 'fimfic',
-    initialRoute: '/chapter',
+    initialRoute: '/story',
     onGenerateRoute: (RouteSettings settings) {
       var routes = <String, WidgetBuilder>{
         '/': (_) => HomeScreen(),
         '/chapter': (_) => ChapterScreen(
             settings.arguments ?? ChapterScreenArgs(chapterNum: 1, storyId: '395988')),
-        '/story': (_) => StoryScreen(settings.arguments),
+        '/story': (_) => StoryScreen(settings.arguments ?? StoryArgs('395988')),
       };
       WidgetBuilder builder = routes[settings.name];
       return MaterialPageRoute(builder: (ctx) => builder(ctx), settings: settings);
