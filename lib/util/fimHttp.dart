@@ -67,16 +67,16 @@ class FimFicClient extends BaseClient {
       default:
         respBody = resp.body;
     }
+    print('body: ${respBody.substring(0, min(respBody.length, 100))}');
 
     final type = resp.headers['content-type'];
     print('type: $type');
     if (type.startsWith('text/html')) {
       return FimFicResponse(is404: true);
     }
-    print('body: ${respBody.substring(0, min(respBody.length, 100))}');
     final json = jsonDecode(respBody);
-    print(json.runtimeType);
     return FimFicResponse(
+      is404: false,
       json: json,
       setCookie: resp.headers.containsKey('set-cookie') ? resp.headers['set-cookie'] : null,
     );

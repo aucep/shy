@@ -4,7 +4,7 @@ import 'package:html/dom.dart';
 import '../util/fimHttp.dart';
 import '../util/sharedPrefs.dart';
 
-class Bookshelf {
+class BookshelfData {
   String name;
   final BookshelfIcon icon;
   final String id;
@@ -15,7 +15,7 @@ class Bookshelf {
   int stories;
   bool added;
 
-  Bookshelf({
+  BookshelfData({
     this.name,
     this.description,
     this.numUnread,
@@ -25,10 +25,10 @@ class Bookshelf {
     this.added,
   });
 
-  static Bookshelf fromMap(s) {
+  static BookshelfData fromMap(s) {
     final icon = Element.html(s['iconHtml']);
 
-    return Bookshelf(
+    return BookshelfData(
       name: s['name'],
       icon: BookshelfIcon.fromIcon(icon),
       id: s['url'].split('/')[2],
@@ -36,17 +36,17 @@ class Bookshelf {
     );
   }
 
-  static List<Bookshelf> fromPopupList(Element doc) {
+  static List<BookshelfData> fromPopupList(Element doc) {
     final shelves = doc.querySelector('#bookshelves-popup-list');
-    return shelves.children.map((s) => Bookshelf.fromPopupItem(s)).toList();
+    return shelves.children.map((s) => BookshelfData.fromPopupItem(s)).toList();
   }
 
-  static Bookshelf fromPopupItem(Element doc) {
+  static BookshelfData fromPopupItem(Element doc) {
     final item = doc.children.first;
     final name = item.querySelector('.name');
     final stories = item.querySelector('.num_stories');
     final icon = item.querySelector('.bookshelf-icon-element');
-    return Bookshelf(
+    return BookshelfData(
       name: name.innerHtml,
       description: doc.attributes['title'],
       id: item.attributes['data-bookshelf'],
@@ -87,7 +87,7 @@ class BookshelfIcon {
   static BookshelfIcon fromIcon(Element icon) {
     final isPony = icon.attributes['data-icon-type'] == 'pony-emoji';
     return BookshelfIcon(
-      icon: isPony ? icon.text.trim() : icon.className.split(' ')[0],
+      icon: isPony ? icon.text.trim() : icon.className.split(' ').last,
       isPony: isPony,
       color: hexToColor(icon.attributes['style']
           .replaceFirst(isPony ? 'font-family:PonyEmoji; color:#' : 'color:#', '')),
@@ -100,8 +100,8 @@ class BookshelfIcon {
   }
 }
 
-extension ShelfHiding on List<Bookshelf> {
-  List<Bookshelf> extractHidden() {
+extension ShelfHiding on List<BookshelfData> {
+  List<BookshelfData> extractHidden() {
     final prefix = sharedPrefs.shelfHidePrefix;
     //extract all shelves with prefix
     final hiddenShelves = this.where((s) => s.name.startsWith(prefix)).toList();

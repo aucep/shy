@@ -1,26 +1,24 @@
-import 'package:badges/badges.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:assorted_layout_widgets/assorted_layout_widgets.dart';
+import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart' hide Page;
-import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:html/dom.dart' show Document;
-import 'package:html/parser.dart' show parse;
-import 'package:equatable/equatable.dart';
-import 'package:assorted_layout_widgets/assorted_layout_widgets.dart';
-import 'package:shy/util/snackbar.dart';
 
 //code-splitting
 import '../appDrawer.dart';
+import '../models/chapter.dart';
 import '../models/pageData.dart';
 import '../models/story.dart';
-import '../models/tags.dart';
-import '../models/chapter.dart';
-import '../widgets/cheatTitle.dart';
-import '../widgets/shelvesModal.dart';
 import '../util/fimHttp.dart';
 import '../util/sharedPrefs.dart';
+import '../util/showSnackbar.dart';
+import '../widgets/cheatTitle.dart';
+import '../widgets/chips.dart';
+import '../widgets/expandableImage.dart';
+import '../widgets/ratingBar.dart';
+import '../widgets/shelvesModal.dart';
+import '../widgets/storyTags.dart';
 import 'chapter.dart';
 import 'home.dart';
 
@@ -38,20 +36,15 @@ class StoryScreen extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    var page = useState(Page<Story>());
+    var page = useState(PageData<StoryData>());
     final body = page.value?.body;
 
     refresh() async {
-      Document doc;
       final start = DateTime.now();
-      if (kIsWeb) {
-        doc = parse(await rootBundle.loadString('saved_html/story.html'));
-      } else {
-        doc = await fetchDoc('story/${args.id}');
-      }
+      final doc = await fetchDoc('story/${args.id}');
       var elapsed = DateTime.now().millisecondsSinceEpoch - start.millisecondsSinceEpoch;
       print('doc after $elapsed ms');
-      page.value = Story.page(doc);
+      page.value = StoryData.page(doc);
       elapsed = DateTime.now().millisecondsSinceEpoch - start.millisecondsSinceEpoch;
       print('parsed after $elapsed ms');
     }
@@ -68,6 +61,15 @@ class StoryScreen extends HookWidget {
         automaticallyImplyLeading: false,
         titleSpacing: 0,
         title: CheatTitle('story'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.book),
+            onPressed: () => showModalBottomSheet(
+              context: context,
+              builder: (_) => AddToShelvesModal(body, raiseError),
+            ),
+          ),
+        ],
       ),
       body: body == null
           ? Center(child: CircularProgressIndicator())
@@ -98,17 +100,10 @@ class StoryScreen extends HookWidget {
                               ),
                             ),
                             Divider(),
-                            if (body != null) Ratings(body),
+                            if (body != null) InfoRow(body),
                             Container(height: 6),
                             StoryTagList(tags: body.tags),
                             Divider(),
-                            IconButton(
-                              icon: Icon(Icons.library_add_outlined),
-                              onPressed: () => showModalBottomSheet(
-                                context: context,
-                                builder: (_) => AddToShelvesModal(body, raiseError),
-                              ),
-                            ),
                             if (body?.imageUrl != null && sharedPrefs.showImages)
                               ConstrainedBox(
                                 constraints: BoxConstraints(maxHeight: 200, maxWidth: 200),
@@ -142,64 +137,9 @@ class StoryScreen extends HookWidget {
   }
 }
 
-class StoryTagList extends StatelessWidget {
-  final StoryTags tags;
-
-  const StoryTagList({this.tags});
-
-  @override
-  Widget build(BuildContext context) {
-    List<Badge> badges = [];
-    Map<String, int> genreColors = {
-      'Adventure': 0x6fb859,
-      'Comedy': 0xf59c00,
-      'Drama': 0x895fd6,
-      'Dark': 0xb93737,
-      'Horror': 0xb93737,
-      'Romance': 0xcd58a7,
-    };
-    dynamic color; //series color
-    Badge toBadge(String tag) {
-      final badgeColor = Color(
-        0xff000000 +
-            (color == 'genre'
-                ? genreColors.containsKey(tag)
-                    ? genreColors[tag]
-                    : 0x4f91d6 //default genre tag color
-                : color),
-      );
-      return Badge(
-        toAnimate: false,
-        badgeContent: Text(tag, style: TextStyle(color: Colors.white)),
-        shape: BadgeShape.square,
-        badgeColor: badgeColor,
-        padding: EdgeInsets.all(4),
-      );
-    }
-
-    color = 0xb159d0;
-    badges.addAll(tags.series.map(toBadge));
-    color = 0xd6605a;
-    if (tags.warning != null) badges.addAll(tags.warning.map(toBadge));
-    color = 'genre';
-    if (tags.genre != null) badges.addAll(tags.genre.map(toBadge));
-    color = 0x4b4b4b;
-    if (tags.content != null) badges.addAll(tags.content.map(toBadge));
-    color = 0x23b974;
-    if (tags.character != null) badges.addAll(tags.character.map(toBadge));
-
-    return WrapSuper(
-      children: badges,
-      alignment: WrapSuperAlignment.center,
-      spacing: 6,
-      lineSpacing: 6,
-    );
-  }
-}
-
 class ChapterRow extends HookWidget {
   final bool loggedIn;
-  final Chapter row;
+  final ChapterData row;
   final String storyId;
   final int chapterNum;
 
@@ -213,7 +153,7 @@ class ChapterRow extends HookWidget {
           ? updatingRead.value
               ? CircularProgressIndicator()
               : IconButton(
-                  icon: Icon(row.read ? Icons.check_box_outlined : Icons.check_box_outline_blank),
+                  icon: Icon(row.read ? Icons.check_box : Icons.check_box_outline_blank),
                   onPressed: () async {
                     updatingRead.value = true;
                     await row.setRead(!row.read);
@@ -236,7 +176,7 @@ class ChapterRow extends HookWidget {
       onTap: () => Navigator.pushNamed(
         context,
         '/chapter',
-        arguments: ChapterScreenArgs(
+        arguments: ChapterArgs(
           storyId: storyId,
           chapterNum: chapterNum,
         ),
@@ -245,17 +185,20 @@ class ChapterRow extends HookWidget {
   }
 }
 
-class Ratings extends HookWidget {
-  final Story story;
-  Ratings(this.story);
+class InfoRow extends StatelessWidget {
+  final StoryData story;
+  InfoRow(this.story);
 
   @override
   Widget build(BuildContext context) {
     return WrapSuper(
       alignment: WrapSuperAlignment.center,
       children: [
-        IconChip(FontAwesomeIcons.solidComments, ' ${story.totalViews}'),
-        IconChip(FontAwesomeIcons.chartBar, ' ${story.comments}'),
+        if (story.hot) FaIcon(FontAwesomeIcons.fire),
+        RatingBar(story.rating),
+        IconChip(FontAwesomeIcons.solidComments, ' ${story.comments}'),
+        IconChip(FontAwesomeIcons.eye, ' ${story.totalViews.replaceAll(',', '')}'),
+        IconChip(FontAwesomeIcons.calendar, ' ${story.approvedDate}')
       ],
       spacing: 6,
       lineSpacing: 6,

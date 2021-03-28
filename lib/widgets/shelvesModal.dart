@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:shy/util/snackbar.dart';
+import '../util/showSnackbar.dart';
 
 //code-splitting
 import '../appDrawer.dart';
@@ -11,7 +11,7 @@ import '../util/sharedPrefs.dart';
 import '../models/story.dart';
 
 class AddToShelvesModal extends HookWidget {
-  final Story story;
+  final StoryData story;
   final void Function(String) showSnackbarFromParent;
   AddToShelvesModal(this.story, this.showSnackbarFromParent);
 
@@ -19,7 +19,7 @@ class AddToShelvesModal extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    final shelfData = useState(<Bookshelf>[]);
+    final shelfData = useState(<BookshelfData>[]);
     final error = useState('');
     final loading = useState(true);
     final shelves = shelfData.value;
@@ -48,7 +48,7 @@ class AddToShelvesModal extends HookWidget {
         });
         return Container();
       }
-      var hiddenShelves = <Bookshelf>[];
+      var hiddenShelves = <BookshelfData>[];
       final hidableShelves = sharedPrefs.hidableShelves;
       if (hidableShelves) {
         hiddenShelves = shelves.extractHidden();
@@ -93,7 +93,7 @@ class AddToShelvesModal extends HookWidget {
 }
 
 class ShelfTile extends HookWidget {
-  final Bookshelf shelf;
+  final BookshelfData shelf;
   final String storyId;
   ShelfTile({this.shelf, this.storyId});
 

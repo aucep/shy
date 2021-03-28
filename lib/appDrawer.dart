@@ -11,7 +11,7 @@ import 'util/fimHttp.dart';
 import 'util/icons.dart';
 import 'util/sharedPrefs.dart';
 import 'models/bookshelf.dart';
-import 'util/snackbar.dart';
+import 'util/showSnackbar.dart';
 
 class AppDrawer extends HookWidget {
   final AppDrawerData data;
@@ -64,12 +64,11 @@ class AppDrawer extends HookWidget {
             ),
           ),
           DrawerRouteItem(title: 'Stories', route: '/'),
-          DrawerRouteItem(title: 'Groups', route: '/'),
           DrawerRouteItem(title: 'News', route: '/'),
           DrawerRouteItem(
             title: 'Chapter',
             route: '/chapter',
-            arguments: ChapterScreenArgs(storyId: '395988', chapterNum: 1),
+            arguments: ChapterArgs(storyId: '395988', chapterNum: 1),
           ),
           if (data?.shelves != null)
             if (data.shelves.length > 0) BookshelvesTile(shelves: data.shelves),
@@ -111,7 +110,7 @@ class DrawerRouteItem extends StatelessWidget {
 class AppDrawerData {
   final bool loggedIn;
   final String username, avatarUrl, bgColor, userId;
-  final List<Bookshelf> shelves;
+  final List<BookshelfData> shelves;
 
   AppDrawerData(
       {this.loggedIn, this.username, this.avatarUrl, this.bgColor, this.userId, this.shelves});
@@ -130,7 +129,7 @@ class AppDrawerData {
         bgColor: user['backgroundColor'],
         shelves: shelves
             .map(
-              (s) => Bookshelf.fromMap(s),
+              (s) => BookshelfData.fromMap(s),
             )
             .toList());
   }
@@ -197,10 +196,10 @@ class LoginDialog extends HookWidget {
               final err = await _login(username, password, rememberMe);
               //golang, baby
               if (err != null) {
+                showSnackbar(context, 'error: $err');
+              } else {
                 Navigator.pop(context);
                 refresh();
-              } else {
-                showSnackbar(context, 'error: $err');
               }
             }
           },
@@ -230,7 +229,7 @@ class LoginDialog extends HookWidget {
 }
 
 class BookshelvesTile extends StatelessWidget {
-  final List<Bookshelf> shelves;
+  final List<BookshelfData> shelves;
   BookshelvesTile({this.shelves});
 
   final GlobalKey libraryKey = GlobalKey();
@@ -239,7 +238,7 @@ class BookshelvesTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     //hide shelves?
-    List<Bookshelf> hiddenShelves;
+    List<BookshelfData> hiddenShelves;
     final hidableShelves = sharedPrefs.hidableShelves;
     if (hidableShelves) {
       hiddenShelves = shelves.extractHidden();
@@ -285,7 +284,7 @@ class BookshelvesTile extends StatelessWidget {
 }
 
 class ShelfTile extends StatelessWidget {
-  final Bookshelf s;
+  final BookshelfData s;
   ShelfTile(this.s);
 
   @override
@@ -300,6 +299,7 @@ class ShelfTile extends StatelessWidget {
             : ShelfIcon(s.icon),
         title: Text(s.name),
         onTap: () {
+          print(s.icon.icon);
           showSnackbar(context, 'bookshelf screen not implemented yet');
         });
   }

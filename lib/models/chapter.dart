@@ -6,7 +6,7 @@ import '../util/fimHttp.dart';
 import 'pageData.dart';
 import 'story.dart';
 
-class Chapter {
+class ChapterData {
   final String title;
   //as row in story
   final String date, id;
@@ -14,12 +14,12 @@ class Chapter {
   final String wordcount;
   bool read;
   //as screen
-  final Story story;
+  final StoryData story;
   final String note;
   final bool notePosition;
   final List<String> paragraphs;
 
-  Chapter(
+  ChapterData(
       {this.date,
       this.id,
       this.wordcount,
@@ -31,15 +31,15 @@ class Chapter {
       this.paragraphs});
 
   //screen
-  static Chapter fromChapter(Document doc) {
+  static ChapterData fromChapter(Document doc) {
     final title = doc.querySelector('#chapter_title');
     final authorsNote = doc.querySelector('.authors-note');
     final noteOnTop =
         authorsNote != null ? authorsNote.attributes['style'].startsWith('margin-top') : false;
     final body = doc.querySelector('#chapter-body > div');
     final paragraphs = body.children.map((p) => p.outerHtml).toList();
-    return Chapter(
-      story: Story.fromChapter(doc),
+    return ChapterData(
+      story: StoryData.fromChapter(doc),
       title: title.innerHtml,
       note: authorsNote?.innerHtml ?? '',
       notePosition: noteOnTop,
@@ -47,18 +47,19 @@ class Chapter {
     );
   }
 
-  static Page<Chapter> page(Document doc) {
-    return Page<Chapter>(drawer: AppDrawerData.fromDoc(doc), body: Chapter.fromChapter(doc));
+  static PageData<ChapterData> page(Document doc) {
+    return PageData<ChapterData>(
+        drawer: AppDrawerData.fromDoc(doc), body: ChapterData.fromChapter(doc));
   }
 
   //chapter row from story
-  static Chapter fromStoryRow(Element row) {
+  static ChapterData fromStoryRow(Element row) {
     final unesc = HtmlUnescape();
     final title = row.querySelector('.chapter-title');
     final date = row.querySelector('.date');
     final wordcount = row.querySelector('.word-count-number');
     final readIcon = row.querySelector('.chapter-read-icon');
-    return Chapter(
+    return ChapterData(
       title: unesc.convert(title.innerHtml),
       date: date.nodes[1].text,
       wordcount: wordcount.innerHtml.trim(),
@@ -79,12 +80,12 @@ class Chapter {
   }
 
   //chapter row from chapter
-  static Chapter fromChapterRow(Element row) {
+  static ChapterData fromChapterRow(Element row) {
     final readIcon = row.querySelector('.fa');
     final title = row.querySelector('.chapter-selector__title');
     final wordcount = row.querySelector('.chapter-selector__words');
 
-    return Chapter(
+    return ChapterData(
       read: readIcon.className.contains('check'),
       title: title.innerHtml,
       wordcount: wordcount.innerHtml,

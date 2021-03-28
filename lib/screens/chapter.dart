@@ -1,10 +1,6 @@
 import 'package:equatable/equatable.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart' hide Page;
-import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:html/dom.dart' show Document;
-import 'package:html/parser.dart' show parse;
 import 'package:scroll_app_bar/scroll_app_bar.dart';
 import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
 
@@ -13,44 +9,43 @@ import '../appDrawer.dart';
 import '../models/pageData.dart';
 import '../models/chapter.dart';
 import '../models/story.dart';
-import 'story.dart';
 import '../util/nav.dart';
 import '../util/fimHttp.dart';
 import '../widgets/cheatTitle.dart';
+import 'story.dart';
 
 //fimfiction.net/story/[storyID]/[chapterNum]/
-class ChapterScreenArgs extends Equatable {
+class ChapterArgs extends Equatable {
   final String storyId;
   final int chapterNum;
 
-  ChapterScreenArgs({this.storyId, this.chapterNum});
+  ChapterArgs({this.storyId, this.chapterNum});
 
   @override
   List<Object> get props => [storyId, chapterNum];
 }
 
 class ChapterScreen extends HookWidget {
-  final ChapterScreenArgs args;
+  final ChapterArgs args;
   ChapterScreen(this.args);
 
   @override
   Widget build(BuildContext context) {
     final controller = useScrollController();
     var chapterNum = useState(args.chapterNum);
-    var page = useState(Page<Chapter>());
-    var loading = useState(false);
 
+    var loading = useState(false);
+    var page = useState(PageData<ChapterData>());
     final body = page.value?.body;
     refresh() async {
       loading.value = true;
-      Document doc;
-      if (kIsWeb) {
-        doc = parse(await rootBundle.loadString('saved_html/chapter.html'));
-      } else {
-        doc = await fetchDoc('story/${args.storyId}/${chapterNum.value}/');
-      }
-
-      page.value = Chapter.page(doc);
+      final start = DateTime.now();
+      final doc = await fetchDoc('story/${args.storyId}/${chapterNum.value}/');
+      var elapsed = DateTime.now().millisecondsSinceEpoch - start.millisecondsSinceEpoch;
+      print('doc after $elapsed ms');
+      page.value = ChapterData.page(doc);
+      elapsed = DateTime.now().millisecondsSinceEpoch - start.millisecondsSinceEpoch;
+      print('parsed after $elapsed ms');
       loading.value = false;
     }
 
@@ -63,7 +58,7 @@ class ChapterScreen extends HookWidget {
       appBar: ScrollAppBar(
         controller: controller,
         titleSpacing: 0,
-        title: CheatTitle('story/${args.storyId}/${chapterNum.value}/'),
+        title: CheatTitle(body?.title ?? 'story/${args.storyId}/${chapterNum.value}/'),
         centerTitle: true,
         automaticallyImplyLeading: false,
       ),
@@ -113,7 +108,7 @@ class Paragraphs extends StatelessWidget {
 }
 
 class ChapterDrawer extends HookWidget {
-  final Story story;
+  final StoryData story;
   final ValueNotifier<int> chapterNum;
   final String chapterTitle;
   ChapterDrawer({this.story, this.chapterNum, this.chapterTitle});
