@@ -1,8 +1,8 @@
 import 'package:html/dom.dart';
-import 'package:html_unescape/html_unescape_small.dart';
 //code-splitting
 import '../appDrawer.dart';
 import '../util/fimHttp.dart';
+import '../util/unescape.dart';
 import 'pageData.dart';
 import 'story.dart';
 
@@ -54,13 +54,12 @@ class ChapterData {
 
   //chapter row from story
   static ChapterData fromStoryRow(Element row) {
-    final unesc = HtmlUnescape();
     final title = row.querySelector('.chapter-title');
     final date = row.querySelector('.date');
     final wordcount = row.querySelector('.word-count-number');
     final readIcon = row.querySelector('.chapter-read-icon');
     return ChapterData(
-      title: unesc.convert(title.innerHtml),
+      title: unescape(title.innerHtml),
       date: date.nodes[1].text,
       wordcount: wordcount.innerHtml.trim(),
       read: readIcon != null ? readIcon.classes.contains('chapter-read') : null,

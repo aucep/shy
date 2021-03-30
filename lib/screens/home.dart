@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart' hide Element, Page;
 import 'package:flutter_hooks/flutter_hooks.dart';
 
@@ -47,32 +46,13 @@ class HomeScreen extends HookWidget {
               ? Center(child: CircularProgressIndicator())
               : TabBarView(
                   children: [
-                    StoryCardList(body.featured, refresh),
-                    StoryCardList(body.newly, refresh),
-                    StoryCardList(body.updated, refresh),
-                    StoryCardList(body.popular, refresh),
+                    StoryCardList(data: body.featured, refresh: refresh),
+                    StoryCardList(data: body.newlyAdded, refresh: refresh),
+                    StoryCardList(data: body.updated, refresh: refresh),
+                    StoryCardList(data: body.popular, refresh: refresh),
                   ],
                 ),
           drawer: AppDrawer(data: page.value.drawer, refresh: refresh),
         ));
-  }
-}
-
-class ContentRating extends StatelessWidget {
-  final String contentRating;
-  ContentRating(this.contentRating);
-
-  @override
-  Widget build(BuildContext context) {
-    return Chip(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(3)),
-      label: Text(contentRating),
-      labelPadding: EdgeInsets.symmetric(horizontal: 5),
-      backgroundColor: contentRating == 'E'
-          ? Color(0xff78ac40)
-          : contentRating == 'T'
-              ? Color(0xffffb400)
-              : Color(0xffc03d2f),
-    );
   }
 }

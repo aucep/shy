@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class CheatTitle extends StatelessWidget {
-  final String title;
+  final title;
   CheatTitle(this.title);
 
   @override
@@ -11,7 +11,7 @@ class CheatTitle extends StatelessWidget {
         if (Navigator.canPop(context))
           IconButton(icon: Icon(Icons.arrow_back), onPressed: () => Navigator.pop(context)),
         IconButton(icon: Icon(Icons.menu), onPressed: () => Scaffold.of(context).openDrawer()),
-        Expanded(child: Center(child: Text(title))),
+        Expanded(child: Center(child: title is Widget ? title : Text(title))),
       ],
     );
   }

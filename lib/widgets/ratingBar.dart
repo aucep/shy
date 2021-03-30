@@ -9,7 +9,8 @@ import 'chips.dart';
 
 class RatingBar extends HookWidget {
   final RatingBarData rating;
-  RatingBar(this.rating);
+  final bool loggedIn;
+  RatingBar({this.rating, this.loggedIn});
 
   @override
   Widget build(BuildContext context) {
@@ -17,6 +18,14 @@ class RatingBar extends HookWidget {
 
     if (rating.disabled) {
       return InfoChip('ratings disabled');
+    } else if (!loggedIn) {
+      return RowSuper(
+        children: [
+          IconChip(Icons.thumb_up, rating.likes),
+          Container(width: 6),
+          IconChip(Icons.thumb_down, rating.dislikes),
+        ],
+      );
     } else {
       return RowSuper(
         children: [

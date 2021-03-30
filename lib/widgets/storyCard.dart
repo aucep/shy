@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 
 //code-splitting
 import '../screens/story.dart';
-import '../screens/home.dart';
-import '../models/storyCard.dart';
+import '../models/story.dart';
 import '../util/nav.dart';
 import 'chips.dart';
 import 'expandableImage.dart';
+import 'storyTitle.dart';
 
 class StoryCard extends StatelessWidget {
-  final StoryCardData data;
+  final StoryData data;
   StoryCard({this.data});
 
   @override
@@ -19,25 +19,14 @@ class StoryCard extends StatelessWidget {
       elevation: 3,
       child: Material(
         child: InkWell(
-          onTap: () =>
-              Navigator.of(context).pushNamedIfNew('/story', args: StoryArgs(data.storyId)),
+          onTap: () => Navigator.of(context).pushNamedIfNew('/story', args: StoryArgs(data.id)),
           child: Container(
             margin: EdgeInsets.all(8),
             width: 400,
             child: IntrinsicHeight(
               child: Column(
                 children: [
-                  Row(children: [
-                    ContentRating(data.contentRating),
-                    Container(width: 5),
-                    Flexible(
-                      child: Text(
-                        data.title,
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    )
-                  ]),
+                  StoryTitle(contentRating: data.contentRating, title: data.title),
                   Divider(),
                   Expanded(
                     child: Row(
@@ -59,16 +48,11 @@ class StoryCard extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      InfoChip(data.authorName),
-                      IntrinsicWidth(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            InfoChip(data.wordcount),
-                            InfoChip(data.viewcount),
-                          ],
-                        ),
-                      ),
+                      AuthorChip(name: data.authorName, id: data.authorId),
+                      Spacer(),
+                      WordcountChip(data.wordcount),
+                      Container(width: 6),
+                      InfoChip(data.recentViews),
                     ],
                   ),
                 ],
@@ -82,18 +66,19 @@ class StoryCard extends StatelessWidget {
 }
 
 class StoryCardList extends StatelessWidget {
-  final List<StoryCardData> data;
+  final List<StoryData> data;
   final refresh;
-  StoryCardList(this.data, this.refresh);
+  StoryCardList({this.data, this.refresh});
   @override
   Widget build(BuildContext context) {
     return RefreshIndicator(
       onRefresh: refresh,
       child: Scrollbar(
-        child: ListView(
+        child: ListView.builder(
           physics: const AlwaysScrollableScrollPhysics(),
           padding: EdgeInsets.fromLTRB(8, 8, 8, 0),
-          children: data.map((c) => StoryCard(data: c)).toList(),
+          itemBuilder: (_, i) => StoryCard(data: data[i]),
+          itemCount: data.length,
         ),
       ),
     );

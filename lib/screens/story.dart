@@ -19,8 +19,9 @@ import '../widgets/expandableImage.dart';
 import '../widgets/ratingBar.dart';
 import '../widgets/shelvesModal.dart';
 import '../widgets/storyTags.dart';
+import '../widgets/storyTitle.dart';
+import '../widgets/storyCard.dart';
 import 'chapter.dart';
-import 'home.dart';
 
 class StoryArgs extends Equatable {
   final String id;
@@ -56,83 +57,188 @@ class StoryScreen extends HookWidget {
       return;
     }, const []);
 
-    return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        titleSpacing: 0,
-        title: CheatTitle('story'),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.book),
-            onPressed: () => showModalBottomSheet(
-              context: context,
-              builder: (_) => AddToShelvesModal(body, raiseError),
-            ),
+    return DefaultTabController(
+      length: 3,
+      child: Scaffold(
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          titleSpacing: 0,
+          title: CheatTitle(
+            body != null
+                ? StoryTitle(
+                    center: true,
+                    contentRating: body.contentRating,
+                    title: body.title,
+                    hot: body.hot,
+                  )
+                : 'story/${args.id}',
           ),
-        ],
-      ),
-      body: body == null
-          ? Center(child: CircularProgressIndicator())
-          : RefreshIndicator(
-              onRefresh: refresh,
-              child: Scrollbar(
-                child: ListView.builder(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  itemBuilder: (context, i) => i == 0
-                      ? Padding(
-                          padding: Pad(all: 8),
-                          child: Column(children: [
-                            Center(
-                              child: IntrinsicWidth(
-                                child: Row(
-                                  children: [
-                                    ContentRating(body.contentRating),
-                                    Container(width: 5),
-                                    Expanded(
-                                      child: Text(
-                                        body.title,
-                                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            Divider(),
-                            if (body != null) InfoRow(body),
-                            Container(height: 6),
-                            StoryTagList(tags: body.tags),
-                            Divider(),
-                            if (body?.imageUrl != null && sharedPrefs.showImages)
-                              ConstrainedBox(
-                                constraints: BoxConstraints(maxHeight: 200, maxWidth: 200),
-                                child: IntrinsicWidth(
-                                  child: Card(
-                                      child: IntrinsicWidth(child: ExpandableImage(body.imageUrl))),
-                                ),
-                              ),
-                            Card(
-                              child: Padding(
-                                padding: EdgeInsets.all(8),
-                                child: HtmlWidget(body.description),
-                              ),
-                            ),
-                            Divider(),
-                            Text(
-                                '${body.chapters.length} Chapter${body.chapters.length > 1 ? 's' : ''}'),
-                          ]))
-                      : ChapterRow(
-                          row: body.chapters[i - 1],
-                          storyId: args.id,
-                          chapterNum: i,
-                          loggedIn: page.value.drawer.loggedIn,
-                        ),
-                  itemCount: body.chapters != null ? body.chapters.length + 1 : 1,
-                ),
+          actions: [
+            IconButton(
+              icon: Icon(Icons.add),
+              onPressed: () => showModalBottomSheet(
+                context: context,
+                builder: (_) => AddToShelvesModal(body, raiseError),
               ),
             ),
-      drawer: AppDrawer(data: page.value.drawer, refresh: refresh),
+          ],
+          bottom: TabBar(
+            tabs: [
+              Tab(text: "Story"),
+              Tab(text: "Chapters"),
+              Tab(text: "Related"),
+            ],
+          ),
+        ),
+        body: body == null
+            ? Center(child: CircularProgressIndicator())
+            : TabBarView(
+                children: [
+                  StoryTab(
+                    body: body,
+                    loggedIn: page.value.drawer.loggedIn,
+                    refresh: refresh,
+                  ),
+                  ChaptersTab(
+                    body: body,
+                    storyId: args.id,
+                    loggedIn: page.value.drawer.loggedIn,
+                    refresh: refresh,
+                  ),
+                  RelatedStoriesTab(
+                    related: body.relatedStories,
+                    refresh: refresh,
+                  ),
+                ],
+              ),
+        drawer: AppDrawer(data: page.value.drawer, refresh: refresh),
+      ),
+    );
+  }
+}
+
+class StoryTab extends StatelessWidget {
+  final StoryData body;
+  final bool loggedIn;
+  final void Function() refresh;
+  const StoryTab({this.body, this.loggedIn, this.refresh});
+
+  @override
+  Widget build(BuildContext context) {
+    return RefreshIndicator(
+      onRefresh: refresh,
+      child: Padding(
+        padding: Pad(all: 8),
+        child: Scrollbar(
+          child: ListView(
+            physics: AlwaysScrollableScrollPhysics(), //you know, i have no idea what this does
+            children: [
+              Divider(),
+              StoryInfo(story: body, loggedIn: loggedIn),
+              Container(height: 6),
+              StoryTagList(tags: body.tags),
+              Divider(),
+              if (body.imageUrl != null && sharedPrefs.showImages)
+                Column(
+                  children: [
+                    ConstrainedBox(
+                      constraints: BoxConstraints(maxHeight: 200),
+                      child: IntrinsicWidth(
+                        child: Card(child: IntrinsicWidth(child: ExpandableImage(body.imageUrl))),
+                      ),
+                    ),
+                    Divider(),
+                  ],
+                ),
+              Card(
+                child: Padding(
+                  padding: Pad(all: 8),
+                  child: HtmlWidget(body.description),
+                ),
+              ),
+              Divider(),
+              ChaptersInfo(
+                completedStatus: body.completedStatus,
+                date: body.approvedDate,
+                wordcount: body.wordcount,
+                chapterCount: body.chapters.length,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class ChaptersTab extends StatelessWidget {
+  final StoryData body;
+  final String storyId;
+  final bool loggedIn;
+  final void Function() refresh;
+  ChaptersTab({this.body, this.storyId, this.loggedIn, this.refresh});
+
+  @override
+  Widget build(BuildContext context) {
+    final chapters = ListTile.divideTiles(
+      context: context,
+      tiles: body.chapters
+          .asMap()
+          .map(
+            //this is a stupid
+            (k, v) => MapEntry(
+              k,
+              ChapterRow(
+                row: v,
+                storyId: storyId,
+                chapterNum: k + 1,
+                loggedIn: loggedIn,
+              ),
+            ),
+          )
+          .values,
+    ).toList();
+
+    return RefreshIndicator(
+      onRefresh: refresh,
+      child: Scrollbar(
+        child: ListView.builder(
+          padding: Pad(vertical: 8),
+          itemBuilder: (_, i) => i == 0
+              ? Column(
+                  children: [
+                    Divider(),
+                    ChaptersInfo(
+                      completedStatus: body.completedStatus,
+                      date: body.approvedDate,
+                      wordcount: body.wordcount,
+                      chapterCount: body.chapters.length,
+                    ),
+                    Container(
+                      //why
+                      height: 8,
+                      decoration: BoxDecoration(
+                        border: Border(
+                          bottom: BorderSide(color: Theme.of(context).dividerColor, width: 0),
+                        ),
+                      ),
+                    ),
+                  ],
+                )
+              : i > chapters.length
+                  ? Container(
+                      // FUCKING MURDER ME OH MY GOD
+                      height: 8,
+                      decoration: BoxDecoration(
+                        border: Border(
+                          top: BorderSide(color: Theme.of(context).dividerColor, width: 0),
+                        ),
+                      ),
+                    )
+                  : chapters[i - 1],
+          itemCount: chapters.length + 2,
+        ),
+      ),
     );
   }
 }
@@ -164,12 +270,14 @@ class ChapterRow extends HookWidget {
         children: [
           Expanded(child: Text(row.title)),
           Spacer(),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              InfoChip(row.date),
-              IconChip(FontAwesomeIcons.penNib, ' ${row.wordcount}'),
-            ],
+          IntrinsicWidth(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                DateChip(row.date),
+                WordcountChip(row.wordcount),
+              ],
+            ),
           ),
         ],
       ),
@@ -185,23 +293,129 @@ class ChapterRow extends HookWidget {
   }
 }
 
-class InfoRow extends StatelessWidget {
+class StoryInfo extends StatelessWidget {
   final StoryData story;
-  InfoRow(this.story);
+  final bool loggedIn;
+  StoryInfo({this.story, this.loggedIn});
 
   @override
   Widget build(BuildContext context) {
     return WrapSuper(
       alignment: WrapSuperAlignment.center,
       children: [
-        if (story.hot) FaIcon(FontAwesomeIcons.fire),
-        RatingBar(story.rating),
-        IconChip(FontAwesomeIcons.solidComments, ' ${story.comments}'),
-        IconChip(FontAwesomeIcons.eye, ' ${story.totalViews.replaceAll(',', '')}'),
-        IconChip(FontAwesomeIcons.calendar, ' ${story.approvedDate}')
+        AuthorChip(name: story.authorName, id: story.authorId),
+        RatingBar(rating: story.rating, loggedIn: loggedIn),
+        IconChip(FontAwesomeIcons.solidComments, story.comments),
+        IconChip(FontAwesomeIcons.eye, story.totalViews),
       ],
       spacing: 6,
       lineSpacing: 6,
+    );
+  }
+}
+
+class ChaptersInfo extends StatelessWidget {
+  final String completedStatus, date, wordcount;
+  final int chapterCount;
+  const ChaptersInfo({this.completedStatus, this.date, this.wordcount, this.chapterCount});
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      alignment: WrapAlignment.center,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      spacing: 6,
+      children: [
+        CompletedStatus(completedStatus),
+        WordcountChip(wordcount),
+        DateChip(date),
+        InfoChip('$chapterCount Chapter${chapterCount > 1 ? 's' : ''}'),
+      ],
+    );
+  }
+}
+
+class RelatedStoriesTab extends StatelessWidget {
+  final RelatedStoriesData related;
+  final void Function() refresh;
+  RelatedStoriesTab({this.related, this.refresh});
+
+  @override
+  Widget build(BuildContext context) {
+    return DefaultTabController(
+      length: 3,
+      child: Column(
+        children: [
+          Expanded(
+            child: TabBarView(
+              children: [
+                related.alsoLiked.length > 0
+                    ? StoryCardList(
+                        data: related.alsoLiked,
+                        refresh: refresh,
+                      )
+                    : None(refresh),
+                related.similar.length > 0
+                    ? StoryCardList(
+                        data: related.similar,
+                        refresh: refresh,
+                      )
+                    : None(refresh),
+                related.author.length > 0
+                    ? StoryCardList(
+                        data: related.author,
+                        refresh: refresh,
+                      )
+                    : None(refresh),
+              ],
+            ),
+          ),
+          Material(
+            color: ThemeData().primaryColor,
+            child: SizedBox(
+              height: kTextTabBarHeight,
+              child: TabBar(
+                labelPadding: Pad(
+                    vertical:
+                        (kTextTabBarHeight - Theme.of(context).textTheme.subtitle1.fontSize) / 2),
+                tabs: [
+                  Text('Also Liked'),
+                  Text('Similar'),
+                  Text('Author'),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class None extends StatelessWidget {
+  final void Function() refresh;
+  None(this.refresh);
+
+  @override
+  Widget build(BuildContext context) {
+    return RefreshIndicator(
+      onRefresh: refresh,
+      child: LayoutBuilder(
+        builder: (context, box) => SingleChildScrollView(
+          physics: AlwaysScrollableScrollPhysics(),
+          child: Container(
+            alignment: Alignment.center,
+            height: box.maxHeight,
+            child: Opacity(
+              opacity: 0.5,
+              child: Text(
+                'none!',
+                style: Theme.of(context).textTheme.headline5,
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

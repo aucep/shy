@@ -55,6 +55,8 @@ dependencies:
   get_storage: ^2.0.1
   #for signing
   crypto: ^3.0.0
+  #because i refuse to learn animation
+  local_hero: ^0.1.0
 
 
 dev_dependencies:
