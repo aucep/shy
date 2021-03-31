@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 //Code-splitting
 import 'util/sharedPrefs.dart';
 import 'screens/home.dart';
@@ -9,8 +8,7 @@ import 'screens/story.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await sharedPrefs.init();
-  runApp(ProviderScope(
-      child: MaterialApp(
+  runApp(MaterialApp(
     title: 'fimfic',
     initialRoute: '/',
     onGenerateRoute: (RouteSettings settings) {
@@ -25,5 +23,5 @@ void main() async {
     },
     theme: ThemeData(),
     debugShowCheckedModeBanner: false,
-  )));
+  ));
 }

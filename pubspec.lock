@@ -8,6 +8,20 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.10.17"
+  archive:
+    dependency: transitive
+    description:
+      name: archive
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "3.1.2"
+  args:
+    dependency: transitive
+    description:
+      name: args
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.0.0"
   assorted_layout_widgets:
     dependency: "direct main"
     description:
@@ -125,13 +139,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.16.0"
-  flutter_riverpod:
-    dependency: transitive
+  flutter_launcher_icons:
+    dependency: "direct main"
     description:
-      name: flutter_riverpod
+      name: flutter_launcher_icons
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.13.1"
+    version: "0.9.0"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -151,13 +165,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "9.0.0-nullsafety"
-  freezed_annotation:
-    dependency: transitive
-    description:
-      name: freezed_annotation
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.14.1"
   full_screen_image:
     dependency: "direct main"
     description:
@@ -179,13 +186,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.1"
-  hooks_riverpod:
-    dependency: "direct main"
-    description:
-      name: hooks_riverpod
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.13.1"
   html:
     dependency: "direct main"
     description:
@@ -214,20 +214,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "4.0.0"
-  json_annotation:
+  image:
     dependency: transitive
     description:
-      name: json_annotation
+      name: image
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "4.0.0"
-  local_hero:
-    dependency: "direct main"
-    description:
-      name: local_hero
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.1.0"
+    version: "3.0.2"
   matcher:
     dependency: transitive
     description:
@@ -298,6 +291,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.11.0"
+  petitparser:
+    dependency: transitive
+    description:
+      name: petitparser
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "4.0.2"
   platform:
     dependency: transitive
     description:
@@ -319,13 +319,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "4.1.0"
-  riverpod:
-    dependency: transitive
-    description:
-      name: riverpod
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.13.1"
   scroll_app_bar:
     dependency: "direct main"
     description:
@@ -359,13 +352,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.10.0"
-  state_notifier:
-    dependency: transitive
-    description:
-      name: state_notifier
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.7.0"
   stream_channel:
     dependency: transitive
     description:
@@ -422,6 +408,20 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.2.0"
+  xml:
+    dependency: transitive
+    description:
+      name: xml
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "5.0.2"
+  yaml:
+    dependency: transitive
+    description:
+      name: yaml
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "3.1.0"
 sdks:
   dart: ">=2.12.0 <3.0.0"
   flutter: ">=1.20.0"
