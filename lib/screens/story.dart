@@ -39,6 +39,7 @@ class StoryScreen extends HookWidget {
   Widget build(BuildContext context) {
     var page = useState(PageData<StoryData>());
     final body = page.value?.body;
+    final loggedIn = page.value?.drawer?.loggedIn ?? false;
 
     refresh() async {
       final start = DateTime.now();
@@ -74,13 +75,14 @@ class StoryScreen extends HookWidget {
                 : 'story/${args.id}',
           ),
           actions: [
-            IconButton(
-              icon: Icon(Icons.add),
-              onPressed: () => showModalBottomSheet(
-                context: context,
-                builder: (_) => AddToShelvesModal(body, raiseError),
+            if (loggedIn)
+              IconButton(
+                icon: Icon(Icons.add),
+                onPressed: () => showModalBottomSheet(
+                  context: context,
+                  builder: (_) => AddToShelvesModal(body, raiseError),
+                ),
               ),
-            ),
           ],
           bottom: TabBar(
             tabs: [
@@ -96,13 +98,13 @@ class StoryScreen extends HookWidget {
                 children: [
                   StoryTab(
                     body: body,
-                    loggedIn: page.value.drawer.loggedIn,
+                    loggedIn: loggedIn,
                     refresh: refresh,
                   ),
                   ChaptersTab(
                     body: body,
                     storyId: args.id,
-                    loggedIn: page.value.drawer.loggedIn,
+                    loggedIn: loggedIn,
                     refresh: refresh,
                   ),
                   RelatedStoriesTab(
@@ -305,8 +307,8 @@ class StoryInfo extends StatelessWidget {
       children: [
         AuthorChip(name: story.authorName, id: story.authorId),
         RatingBar(rating: story.rating, loggedIn: loggedIn),
-        IconChip(FontAwesomeIcons.solidComments, story.comments),
-        IconChip(FontAwesomeIcons.eye, story.totalViews),
+        InfoChip.icon(FontAwesomeIcons.solidComments, story.comments),
+        InfoChip.icon(FontAwesomeIcons.eye, story.totalViews),
       ],
       spacing: 6,
       lineSpacing: 6,

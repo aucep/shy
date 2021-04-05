@@ -10,13 +10,25 @@ class InfoChip extends StatelessWidget {
   final label;
   final double padding;
   final Color color;
-  InfoChip(this.label, {this.padding, this.color});
+  final IconData icon;
+  InfoChip(this.label, {this.padding, this.color, this.icon});
+  InfoChip.icon(this.icon, this.label, {this.padding, this.color});
 
   @override
   Widget build(BuildContext context) {
+    final label = this.label is Widget ? this.label : Text(this.label);
     return Badge(
       toAnimate: false,
-      badgeContent: label is Widget ? label : Text('$label'),
+      badgeContent: icon == null
+          ? label
+          : RowSuper(
+              fill: false,
+              children: [
+                FaIcon(icon, size: 12),
+                Container(width: 4),
+                label,
+              ],
+            ),
       shape: BadgeShape.square,
       badgeColor: color ?? Theme.of(context).chipTheme.backgroundColor,
       borderRadius: BorderRadius.circular(3),
@@ -26,64 +38,32 @@ class InfoChip extends StatelessWidget {
   }
 }
 
-class IconChip extends StatelessWidget {
-  final label;
-  final IconData icon;
-  final double padding;
-  IconChip(this.icon, this.label, {this.padding});
-
-  @override
-  Widget build(BuildContext context) {
-    return InfoChip(
-      RowSuper(
-        fill: false,
-        children: [
-          FaIcon(icon, size: 12),
-          label is Widget ? label : Text(' $label'),
-        ],
-      ),
-    );
-  }
-}
-
 class ButtonChip extends StatelessWidget {
   final IconData icon;
   final Color color;
   final String label;
+  final double padding;
   final void Function() onPressed;
-  ButtonChip({this.icon, this.color, this.label, this.onPressed});
+  ButtonChip({this.icon, this.color, this.label, this.padding, this.onPressed});
 
   @override
   Widget build(BuildContext context) {
+    final label = Text(this.label, style: color == null ? null : TextStyle(color: color));
     return InfoChip(
-      icon == null
-          ? TextButton(
-              child: Text(label),
-              onPressed: onPressed,
-              style: ButtonStyle(
-                padding: MaterialStateProperty.all<EdgeInsetsGeometry>(Pad(all: 12)),
-                minimumSize: MaterialStateProperty.all<Size>(Size.zero),
-                foregroundColor: MaterialStateProperty.all<Color>(
-                  color ?? Theme.of(context).textTheme.bodyText1.color,
-                ),
-              ),
-            )
-          : TextButton.icon(
-              icon: Icon(
-                icon,
-                color: color,
-                size: Theme.of(context).textTheme.bodyText1.fontSize,
-              ),
-              label: Text(label),
-              onPressed: onPressed,
-              style: ButtonStyle(
-                padding: MaterialStateProperty.all<EdgeInsetsGeometry>(Pad(all: 12)),
-                minimumSize: MaterialStateProperty.all<Size>(Size.zero),
-                foregroundColor: MaterialStateProperty.all<Color>(
-                  color ?? Theme.of(context).textTheme.bodyText1.color,
-                ),
-              ),
-            ),
+      InkWell(
+        child: Padding(
+            child: icon == null
+                ? label
+                : Row(
+                    children: [
+                      FaIcon(icon, size: 12, color: color),
+                      Container(width: 4),
+                      label,
+                    ],
+                  ),
+            padding: Pad(all: padding ?? 4)),
+        onTap: onPressed,
+      ),
       padding: 0,
     );
   }
@@ -131,7 +111,7 @@ class WordcountChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return IconChip(FontAwesomeIcons.penNib, label);
+    return InfoChip.icon(FontAwesomeIcons.penNib, label);
   }
 }
 
@@ -141,7 +121,7 @@ class DateChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return IconChip(FontAwesomeIcons.calendar, label);
+    return InfoChip.icon(FontAwesomeIcons.calendar, label);
   }
 }
 

@@ -11,45 +11,45 @@ class StoryTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () => showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          content: Text(
-            title,
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            textAlign: TextAlign.center,
+    return Row(
+      mainAxisAlignment: center ?? false ? MainAxisAlignment.center : MainAxisAlignment.start,
+      children: [
+        if (contentRating != null)
+          Row(
+            children: [
+              ContentRating(contentRating),
+              Container(width: 5),
+            ],
           ),
-        ),
-      ),
-      child: Row(
-        mainAxisAlignment: center ?? false ? MainAxisAlignment.center : MainAxisAlignment.start,
-        children: [
-          if (contentRating != null)
-            Row(
-              children: [
-                ContentRating(contentRating),
-                Container(width: 5),
-              ],
+        Flexible(
+          child: InkWell(
+            onTap: () => showDialog(
+              context: context,
+              builder: (context) => AlertDialog(
+                content: Text(
+                  title,
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.center,
+                ),
+              ),
             ),
-          Flexible(
             child: TextOneLine(
               title,
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
           ),
-          if (hot ?? false)
-            Padding(
-              padding: Pad(left: 5),
-              child: FaIcon(
-                FontAwesomeIcons.fire,
-                size: 18,
-                color: Colors.deepOrange,
-              ),
+        ),
+        if (hot ?? false)
+          Padding(
+            padding: Pad(left: 5),
+            child: FaIcon(
+              FontAwesomeIcons.fire,
+              size: 18,
+              color: Colors.deepOrange,
             ),
-        ],
-      ),
+          ),
+      ],
     );
   }
 }

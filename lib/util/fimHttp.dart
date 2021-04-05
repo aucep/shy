@@ -10,7 +10,7 @@ import 'package:http/http.dart'
 import 'sharedPrefs.dart';
 import 'signature.dart';
 
-const useAuth = true;
+const useAuth = false;
 
 final http = FimFicClient(Client());
 

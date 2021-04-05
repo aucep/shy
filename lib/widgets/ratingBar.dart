@@ -21,9 +21,9 @@ class RatingBar extends HookWidget {
     } else if (!loggedIn) {
       return RowSuper(
         children: [
-          IconChip(Icons.thumb_up, rating.likes),
+          InfoChip.icon(Icons.thumb_up, rating.likes),
           Container(width: 6),
-          IconChip(Icons.thumb_down, rating.dislikes),
+          InfoChip.icon(Icons.thumb_down, rating.dislikes),
         ],
       );
     } else {
