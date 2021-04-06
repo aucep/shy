@@ -67,17 +67,6 @@ class ChapterData {
     );
   }
 
-  Future<bool> setRead(bool changedTo) async {
-    final resp = await http.ajaxRequest('chapters/$id/read', changedTo ? 'POST' : 'DELETE');
-    final json = resp.json;
-    if (json.containsKey('error')) {
-      print(json['error']);
-      return json['error'];
-    }
-    read = json['read'];
-    return null;
-  }
-
   //chapter row from chapter
   static ChapterData fromChapterRow(Element row) {
     final readIcon = row.querySelector('.fa');
@@ -89,5 +78,18 @@ class ChapterData {
       title: title.innerHtml,
       wordcount: wordcount.innerHtml,
     );
+  }
+
+  //actions
+
+  Future<bool> setRead(bool changedTo) async {
+    final resp = await http.ajaxRequest('chapters/$id/read', changedTo ? 'POST' : 'DELETE');
+    final json = resp.json;
+    if (json.containsKey('error')) {
+      print(json['error']);
+      return json['error'];
+    }
+    read = json['read'];
+    return null;
   }
 }

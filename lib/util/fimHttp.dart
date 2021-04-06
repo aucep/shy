@@ -6,11 +6,12 @@ import 'package:html/dom.dart';
 import 'package:html/parser.dart';
 import 'package:http/http.dart'
     show BaseClient, BaseRequest, Client, Request, Response, StreamedResponse;
+import 'package:flutter/foundation.dart' show kDebugMode;
 //code-splitting
 import 'sharedPrefs.dart';
 import 'signature.dart';
 
-const useAuth = false;
+const useAuth = true;
 
 final http = FimFicClient(Client());
 
@@ -25,7 +26,7 @@ class FimFicClient extends BaseClient {
 
     final sessionToken = sharedPrefs.sessionToken;
     final signingKey = sharedPrefs.signingKey;
-    if (useAuth && sessionToken.isNotEmpty && signingKey.isNotEmpty) {
+    if ((kDebugMode && useAuth) && sessionToken.isNotEmpty && signingKey.isNotEmpty) {
       print('using auth');
       request.headers['cookie'] = 'session_token=$sessionToken; signing_key=$signingKey';
     }
