@@ -26,7 +26,7 @@ class FimFicClient extends BaseClient {
 
     final sessionToken = sharedPrefs.sessionToken;
     final signingKey = sharedPrefs.signingKey;
-    if ((kDebugMode && useAuth) && sessionToken.isNotEmpty && signingKey.isNotEmpty) {
+    if ((kDebugMode ? useAuth : true) && sessionToken.isNotEmpty && signingKey.isNotEmpty) {
       print('using auth');
       request.headers['cookie'] = 'session_token=$sessionToken; signing_key=$signingKey';
     }
