@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 //code-splitting
-import '../models/rating.dart';
+import '../models/bars.dart';
 import '../util/showSnackbar.dart';
 import 'chips.dart';
 
@@ -33,7 +33,7 @@ class RatingBar extends HookWidget {
             icon: Icons.thumb_up,
             color: rating.liked ? Colors.green : null,
             label: rating.likes,
-            onPressed: () async {
+            onTap: () async {
               final err = await rating.like();
               if (err != null) {
                 showSnackbar(context, 'err: $err');
@@ -47,7 +47,7 @@ class RatingBar extends HookWidget {
             icon: Icons.thumb_down,
             color: rating.disliked ? Colors.red : null,
             label: rating.dislikes,
-            onPressed: () async {
+            onTap: () async {
               final err = await rating.dislike();
               if (err != null) {
                 showSnackbar(context, 'err: $err');

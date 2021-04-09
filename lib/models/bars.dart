@@ -3,6 +3,7 @@ import 'package:html/dom.dart' show Element;
 
 import '../util/fimHttp.dart';
 
+///holds info bar data
 class InfoBarData {
   final bool hot;
   final RatingBarData rating;
@@ -16,8 +17,7 @@ class InfoBarData {
     this.totalViews,
   });
 
-  //from story/chapter page header
-  //for story, chapter
+  ///from 'rating bar' element (found in story container/chapter header)
   static InfoBarData fromRatingBar(Element bar) {
     final hot = bar.querySelector('.hot-container') != null;
 
@@ -33,15 +33,17 @@ class InfoBarData {
 
     final commentsIcon = bar.querySelector('.fa-comments');
 
+    //views
     final inStory = bar.children.last.className
         .contains('button-group'); //if last child is a dropdown, this is in a story page
-    final viewInfo = inStory ? bar.querySelector('.stats-link') : bar.children.last;
-    final viewTitle = (inStory ? viewInfo.parent : viewInfo).attributes['title'];
+    final viewInfo = bar.querySelector('.fa-bar-chart-o');
+    final viewTitle = (inStory ? viewInfo.parent : viewInfo).parent.attributes['title'];
     return InfoBarData(
       hot: hot,
       rating: ratingsDisabled
           ? RatingBarData(disabled: true)
           : RatingBarData(
+              storyId: bar.attributes['data-story'],
               disabled: false,
               likes: likes.innerHtml,
               dislikes: dislikes.innerHtml,
@@ -55,19 +57,28 @@ class InfoBarData {
                           rating.attributes['style'].replaceAll('width:', '').replaceAll('%;', ''),
                         ),
             ),
-      comments: commentsIcon.parent.nodes.last.text.trim(),
-      recentViews: viewInfo.nodes.last.text.trim(),
+      comments: commentsIcon.parent.attributes['title'].split(' ').first,
+      recentViews: inStory
+          ? viewTitle.split('/').first.split(' ').first
+          : viewInfo.parent.nodes.last.text.trim(),
       totalViews: (inStory ? viewTitle.split('/').last.trimLeft() : viewTitle).split(' ').first,
     );
   }
 }
 
+//this class exists because composition
+///holds data and actions (simple constructor)
 class RatingBarData {
   final String storyId;
+
+  ///whether rating has been disabled for the story
   final bool disabled;
   String likes, dislikes;
   bool liked, disliked;
+
+  ///[0,1] the percent green a rating bar visualization should be
   final double rating;
+
   RatingBarData({
     this.storyId,
     this.disabled,
@@ -77,6 +88,7 @@ class RatingBarData {
     this.disliked,
     this.rating,
   });
+
   RatingBarData withStoryId(String id) {
     return RatingBarData(
       storyId: id,

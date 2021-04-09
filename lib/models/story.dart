@@ -6,7 +6,7 @@ import '../util/unescape.dart';
 import '../appDrawer.dart';
 import 'bookshelf.dart';
 import 'chapter.dart';
-import 'rating.dart';
+import 'bars.dart';
 import 'storyTags.dart';
 import 'pageData.dart';
 
@@ -20,7 +20,6 @@ class StoryData {
   final RatingBarData rating;
   final String recentViews, totalViews, comments;
   final RelatedStoriesData relatedStories;
-  //for chapter, storycard
   final String id;
 
   StoryData({
@@ -44,30 +43,33 @@ class StoryData {
     this.id,
   });
 
-  //from story page
+  //this type of element actually shows up in [author stories] pages as well
   //for storyscreen
-  static StoryData fromStory(Document doc) {
+  static StoryData fromStoryPage(Document doc) {
+    //lower ancestors for further searches
     final story = doc.querySelector('.story_container');
-
     final infoContainer = doc.querySelector('.info-container');
-    final authorLink = infoContainer.querySelector('h1 > a');
-
-    //top
-    final title = story.querySelector('.story_name');
-    final description = story.querySelector('.description-text');
-    final image = story.querySelector('.story_container__story_image > img');
-    final contentRating = story.querySelector('.title > a');
-
-    //footer
     final footer = story.querySelector('.chapters-footer');
+    //title -> title, id
+    final title = story.querySelector('.story_name');
+    final id = title.attributes['href'].split('/')[2];
+    //authorlink -> authorName, authorId
+    final authorLink = infoContainer.querySelector('h1 > a');
+    //desc -> description
+    final desc = story.querySelector('.description-text');
+    //image -> imageUrl
+    final image = story.querySelector('.story_container__story_image > img');
+    //contentRating -> contentRating
+    final contentRating = story.querySelector('.title > a');
+    //completedStatus -> completedStatus
     final completedStatus = footer.querySelector('[class*="status"]');
+    //approvedDate -> approvedDate
     final approvedDate = footer.querySelector('.approved-date').children.last;
+    //wordcount -> wordcount
     final wordcount = footer.children.last.children.first;
-
-    //tags
+    //tags -> storyTags
     final tags = story.querySelector('.story-tags');
-
-    //chapter
+    //chapters -> chapters
     final chapters = story.querySelector('.chapters').children;
     //chapters.removeWhere((c) => c.querySelector('.chapter-title') == null);
     //removeWhere is not implemented, fuck me
@@ -79,22 +81,18 @@ class StoryData {
       final index = indexesToRemove[i] - i;
       chapters.removeAt(index);
     }
-
-    //rating_container
-    final ratings = story.querySelector('.rating_container');
-    final infoBar = InfoBarData.fromRatingBar(ratings);
-
-    //related stories
+    //ratingContainer -> hot, rating, comments, recentViews, totalViews
+    final ratingContainer = story.querySelector('.rating_container');
+    final infoBar = InfoBarData.fromRatingBar(ratingContainer);
+    //relatedStories -> relatedStories
     final relatedStories = doc.querySelector('.related-stories');
 
-    //id
-    final id = title.attributes['href'].split('/')[2];
     return StoryData(
+      title: title.innerHtml,
       id: id,
       authorName: authorLink.innerHtml,
       authorId: authorLink.attributes['href'].split('/')[2],
-      title: title.innerHtml,
-      description: description.innerHtml,
+      description: desc.innerHtml,
       imageUrl: image != null ? image.attributes['data-src'] : null,
       contentRating: contentRating.innerHtml,
       completedStatus: completedStatus.innerHtml.trim(),
@@ -103,7 +101,7 @@ class StoryData {
       tags: StoryTags.fromTags(tags),
       chapters: chapters.map((c) => ChapterData.fromStoryRow(c)).toList(),
       hot: infoBar.hot,
-      rating: infoBar.rating.withStoryId(id),
+      rating: infoBar.rating,
       comments: infoBar.comments,
       recentViews: infoBar.recentViews,
       totalViews: infoBar.totalViews,
@@ -112,50 +110,62 @@ class StoryData {
   }
 
   static PageData<StoryData> page(Document doc) {
-    return PageData<StoryData>(drawer: AppDrawerData.fromDoc(doc), body: StoryData.fromStory(doc));
+    return PageData<StoryData>(
+        drawer: AppDrawerData.fromDoc(doc), body: StoryData.fromStoryPage(doc));
   }
 
   //from chapter page's story header
   //for chapterscreen drawer
-  static StoryData fromChapter(Document doc) {
+  static StoryData fromChapterHeader(Document doc) {
+    //lower ancestor for further searches
     final infoContainer = doc.querySelector('.info-container');
+    //storyLink -> title, id
     final storyLink = infoContainer.querySelector('div > h1 > a');
+    final id = storyLink.attributes['href'].split('/')[2];
+    //authorLink -> authorName, authorId
     final authorLink = infoContainer.querySelector('.author > a');
-    final description = infoContainer.querySelector('div > div > p');
+    //desc -> description
+    final desc = infoContainer.querySelector('div > div > p');
+    //chapterSelector -> chapters
     final chapterSelector = doc.querySelector('.chapter-selector ul');
     final chapters =
         chapterSelector == null ? [] : chapterSelector.children.where((t) => t != null).toList();
+    //ratingContainer -> hot, rating, comments, recentViews, totalViews
     final ratingContainer = doc.querySelector('.rating_container');
     final infoBar = InfoBarData.fromRatingBar(ratingContainer);
 
-    final id = storyLink.attributes['href'].split('/')[2];
     return StoryData(
       title: storyLink.innerHtml,
       id: id,
       authorName: authorLink.innerHtml,
       authorId: authorLink.attributes['href'].split('/')[2],
-      description: description.innerHtml,
+      description: desc.innerHtml,
       chapters: chapters.map((c) => ChapterData.fromChapterRow(c)).toList(),
       hot: infoBar.hot,
-      rating: infoBar.rating.withStoryId(id),
+      rating: infoBar.rating,
       comments: infoBar.comments,
       recentViews: infoBar.recentViews,
       totalViews: infoBar.totalViews,
     );
   }
 
-  //from story cards
   //for storycardlist (home, story[, chapter?])
-  static StoryData fromCard(Element card) {
+  static StoryData fromStoryCard(Element card) {
+    //check whether this is a featured story or a story card (they are set up a little differently)
     final bool c = card.attributes["class"] == "story-card";
+    //link -> title, id
     final storyLink = card.querySelector(c ? ".story_link" : ".title > a");
+    //image -> imageUrl
     final image = card.querySelector(".story_image");
+    //desc -> description
     final desc = card.querySelector(c ? ".short_description" : ".description");
+    //authorLink -> authorName, authorId
     final authorLink =
         card.querySelector(c ? ".story-card__author" : ".author") ?? card.querySelector(".author");
+    //info -> wordcount, recentViews, rating
     final info = card.querySelector(c ? ".story-card__info" : ".info");
-    //final ratingBar = c ? card.querySelector(".rating-bar") : null;
-    final contentRatingSpan = card.querySelector(".${c ? "story-card__" : ""}title > span");
+    //contentRating -> contentRating
+    final contentRating = card.querySelector(c ? ".story-card__title > span" : ".title > span");
 
     return StoryData(
       title: unescape(storyLink.innerHtml),
@@ -178,7 +188,8 @@ class StoryData {
                 : ''
             : info.nodes.last.text.trim(),
       ),
-      contentRating: contentRatingSpan.innerHtml,
+      contentRating: contentRating.innerHtml,
+      tags: StoryTags.fromTags(card),
     );
   }
 
@@ -186,7 +197,7 @@ class StoryData {
 
   //returns String error or List<Bookshelf> result
   Future<dynamic> getShelves() async {
-    print('story: $id');
+    print('getting shelves for story $id');
     final resp = await http.ajaxRequest(
       'bookshelves/add-story-popup?story=$id',
       'GET',
@@ -218,9 +229,9 @@ class RelatedStoriesData {
     final author = doc.querySelectorAll('[data-tab="author"] .story-card');
 
     return RelatedStoriesData(
-      alsoLiked: alsoLiked.map((s) => StoryData.fromCard(s)).toList(),
-      similar: similar.map((s) => StoryData.fromCard(s)).toList(),
-      author: author.map((s) => StoryData.fromCard(s)).toList(),
+      alsoLiked: alsoLiked.map((s) => StoryData.fromStoryCard(s)).toList(),
+      similar: similar.map((s) => StoryData.fromStoryCard(s)).toList(),
+      author: author.map((s) => StoryData.fromStoryCard(s)).toList(),
     );
   }
 }

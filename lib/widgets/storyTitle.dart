@@ -7,40 +7,38 @@ import 'chips.dart';
 class StoryTitle extends StatelessWidget {
   final String contentRating, title;
   final bool hot, center;
-  StoryTitle({this.contentRating, this.title, this.hot, this.center});
+  StoryTitle({
+    this.contentRating,
+    this.title,
+    this.hot = false,
+    this.center = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Row(
-      mainAxisAlignment: center ?? false ? MainAxisAlignment.center : MainAxisAlignment.start,
+      mainAxisAlignment: center ? MainAxisAlignment.center : MainAxisAlignment.start,
       children: [
-        if (contentRating != null)
-          Row(
+        Expanded(
+          child: Row(
+            mainAxisAlignment: center ? MainAxisAlignment.center : MainAxisAlignment.start,
             children: [
-              ContentRating(contentRating),
-              Container(width: 5),
-            ],
-          ),
-        Flexible(
-          child: InkWell(
-            onTap: () => showDialog(
-              context: context,
-              builder: (context) => AlertDialog(
-                content: Text(
-                  title,
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  textAlign: TextAlign.center,
+              if (contentRating != null) ContentRating(contentRating),
+              if (contentRating != null) Container(width: 5),
+              Flexible(
+                child: Tooltip(
+                  child: TextOneLine(
+                    title,
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  message: title,
                 ),
               ),
-            ),
-            child: TextOneLine(
-              title,
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              textAlign: TextAlign.center,
-            ),
+            ],
           ),
         ),
-        if (hot ?? false)
+        if (hot)
           Padding(
             padding: Pad(left: 5),
             child: FaIcon(

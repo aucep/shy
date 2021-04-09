@@ -16,10 +16,10 @@ class Home {
     final updatedList = doc.querySelectorAll("#latest_stories.story-card-list .story-card");
     final featuredList = doc.querySelectorAll(".featured_box > .right > .featured_story");
     return Home(
-      popular: popularList.map((c) => StoryData.fromCard(c)).toList(),
-      newlyAdded: newList.map((c) => StoryData.fromCard(c)).toList(),
-      updated: updatedList.map((c) => StoryData.fromCard(c)).toList(),
-      featured: featuredList.map((c) => StoryData.fromCard(c)).toList(),
+      popular: popularList.map((c) => StoryData.fromStoryCard(c)).toList(),
+      newlyAdded: newList.map((c) => StoryData.fromStoryCard(c)).toList(),
+      updated: updatedList.map((c) => StoryData.fromStoryCard(c)).toList(),
+      featured: featuredList.map((c) => StoryData.fromStoryCard(c)).toList(),
     );
   }
 

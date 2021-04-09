@@ -6,10 +6,13 @@ import 'screens/chapter.dart';
 import 'screens/story.dart';
 
 void main() async {
+  //everyone puts this here so... yeah
   WidgetsFlutterBinding.ensureInitialized();
+  //now everyone has the same storage instance
   await sharedPrefs.init();
+  //finally, we're at the app
   runApp(MaterialApp(
-    title: 'fimfic',
+    title: 'shy',
     initialRoute: '/',
     onGenerateRoute: (RouteSettings settings) {
       var routes = <String, WidgetBuilder>{

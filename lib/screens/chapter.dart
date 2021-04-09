@@ -14,7 +14,7 @@ import '../util/fimHttp.dart';
 import '../widgets/cheatTitle.dart';
 import 'story.dart';
 
-//fimfiction.net/story/[storyID]/[chapterNum]/
+///fimfiction.net/story/:storyId/:chapterNum/
 class ChapterArgs extends Equatable {
   final String storyId;
   final int chapterNum;
@@ -67,7 +67,7 @@ class ChapterScreen extends HookWidget {
           : RefreshIndicator(
               onRefresh: refresh,
               child: Paragraphs(
-                html: body.paragraphs,
+                html: body.body,
                 controller: controller,
               ),
             ),

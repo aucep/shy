@@ -5,36 +5,44 @@ import '../models/storyTags.dart';
 
 class StoryTagList extends StatelessWidget {
   final StoryTags tags;
+  final bool center, leading, trailing;
 
-  const StoryTagList({this.tags});
+  const StoryTagList({
+    this.tags,
+    this.center = true,
+    this.leading = false,
+    this.trailing = false,
+  });
+
+  static const genreColors = {
+    'Adventure': Color(0xff6fb859),
+    'Comedy': Color(0xfff59c00),
+    'Drama': Color(0xff895fd6),
+    'Dark': Color(0xffb93737),
+    'Horror': Color(0xffb93737),
+    'Romance': Color(0xffcd58a7),
+  };
 
   @override
   Widget build(BuildContext context) {
     List<Badge> badges = [];
-    Map<String, int> genreColors = {
-      'Adventure': 0x6fb859,
-      'Comedy': 0xf59c00,
-      'Drama': 0x895fd6,
-      'Dark': 0xb93737,
-      'Horror': 0xb93737,
-      'Romance': 0xcd58a7,
-    };
+
     dynamic color; //series color
     Badge toBadge(String tag) {
-      final badgeColor = Color(
-        0xff000000 +
-            (color == 'genre'
-                ? genreColors.containsKey(tag)
-                    ? genreColors[tag]
-                    : 0x4f91d6 //default genre tag color
-                : color),
-      );
+      final badgeColor = color == 'genre'
+          ? genreColors.containsKey(tag)
+              ? genreColors[tag]
+              : Color(0xff4f91d6) //default genre tag color
+          : Color(0xff000000 + color);
+
       return Badge(
         toAnimate: false,
-        badgeContent: Text(tag, style: TextStyle(color: Colors.white)),
+        badgeContent: Text(tag, style: TextStyle(color: Colors.white, fontSize: 13)),
         shape: BadgeShape.square,
         badgeColor: badgeColor,
-        padding: EdgeInsets.all(4),
+        padding: EdgeInsets.all(3),
+        borderRadius: BorderRadius.circular(3),
+        elevation: 0,
       );
     }
 
@@ -51,9 +59,10 @@ class StoryTagList extends StatelessWidget {
 
     return WrapSuper(
       children: badges,
-      alignment: WrapSuperAlignment.center,
-      spacing: 6,
-      lineSpacing: 6,
+      wrapType: center ? WrapType.balanced : WrapType.fit,
+      alignment: center ? WrapSuperAlignment.center : WrapSuperAlignment.left,
+      spacing: 4,
+      lineSpacing: 4,
     );
   }
 }

@@ -3,7 +3,6 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart' hide Page;
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 //code-splitting
 import '../appDrawer.dart';
@@ -82,6 +81,7 @@ class StoryScreen extends HookWidget {
                   context: context,
                   builder: (_) => AddToShelvesModal(body, raiseError),
                 ),
+                tooltip: 'Add Story to Library',
               ),
           ],
           bottom: TabBar(
@@ -266,7 +266,9 @@ class ChapterRow extends HookWidget {
                     updatingRead.value = true;
                     await row.setRead(!row.read);
                     updatingRead.value = false;
-                  })
+                  },
+                  tooltip: row.read ? 'Mark chapter as unread' : 'Mark chapter as read',
+                )
           : null,
       title: Row(
         children: [
@@ -276,8 +278,8 @@ class ChapterRow extends HookWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                DateChip(row.date),
-                WordcountChip(row.wordcount),
+                IconChip.date(row.date),
+                IconChip.words(row.wordcount),
               ],
             ),
           ),
@@ -307,11 +309,11 @@ class StoryInfo extends StatelessWidget {
       children: [
         AuthorChip(name: story.authorName, id: story.authorId),
         RatingBar(rating: story.rating, loggedIn: loggedIn),
-        InfoChip.icon(FontAwesomeIcons.solidComments, story.comments),
-        InfoChip.icon(FontAwesomeIcons.eye, story.totalViews),
+        IconChip.comments(story.comments),
+        IconChip.views(story.totalViews),
       ],
-      spacing: 6,
-      lineSpacing: 6,
+      spacing: 4,
+      lineSpacing: 4,
     );
   }
 }
@@ -329,8 +331,8 @@ class ChaptersInfo extends StatelessWidget {
       spacing: 6,
       children: [
         CompletedStatus(completedStatus),
-        WordcountChip(wordcount),
-        DateChip(date),
+        IconChip.words(wordcount),
+        IconChip.date(date),
         InfoChip('$chapterCount Chapter${chapterCount > 1 ? 's' : ''}'),
       ],
     );
