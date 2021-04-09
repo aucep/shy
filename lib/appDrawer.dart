@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:html/dom.dart' show Document;
+import 'package:adaptive_theme/adaptive_theme.dart';
 //code-splitting
 import 'screens/chapter.dart';
 import 'util/fimHttp.dart';
@@ -72,8 +73,10 @@ class AppDrawer extends HookWidget {
           ),
           if (data?.shelves != null)
             if (data.shelves.length > 0) BookshelvesTile(shelves: data.shelves),
+          ThemeTile(),
+          //tree shaking hack/fix
           Opacity(
-            opacity: 0.3,
+            opacity: 0.0,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -314,5 +317,16 @@ class ShelfIcon extends StatelessWidget {
     return icon.isPony
         ? Text(icon.icon, style: TextStyle(fontSize: 20, color: icon.color))
         : FaIcon(icons[icon.icon.trim()] ?? FontAwesomeIcons.airbnb, color: icon.color);
+  }
+}
+
+class ThemeTile extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final theme = AdaptiveTheme.of(context);
+    return ListTile(
+      title: Text('theme: ' + theme.mode.name),
+      onTap: () => theme.toggleThemeMode(),
+    );
   }
 }

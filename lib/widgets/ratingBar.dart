@@ -31,7 +31,7 @@ class RatingBar extends HookWidget {
         children: [
           ButtonChip(
             icon: Icons.thumb_up,
-            color: rating.liked ? Colors.green : null,
+            textColor: rating.liked ? Colors.green : null,
             label: rating.likes,
             onTap: () async {
               final err = await rating.like();
@@ -45,7 +45,7 @@ class RatingBar extends HookWidget {
           Container(width: 6),
           ButtonChip(
             icon: Icons.thumb_down,
-            color: rating.disliked ? Colors.red : null,
+            textColor: rating.disliked ? Colors.red : null,
             label: rating.dislikes,
             onTap: () async {
               final err = await rating.dislike();

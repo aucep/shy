@@ -11,10 +11,10 @@ class InfoChip extends StatelessWidget {
   final label;
   final String tooltip;
   final double padding;
-  final Color color;
+  final Color backgroundColor;
   final IconData icon;
-  const InfoChip(this.label, {this.padding, this.color, this.icon, this.tooltip});
-  const InfoChip.icon(this.icon, this.label, {this.padding, this.color, this.tooltip});
+  const InfoChip(this.label, {this.padding, this.backgroundColor, this.icon, this.tooltip});
+  const InfoChip.icon(this.icon, this.label, {this.padding, this.backgroundColor, this.tooltip});
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +34,7 @@ class InfoChip extends StatelessWidget {
                 ],
               ),
         shape: BadgeShape.square,
-        badgeColor: color ?? Theme.of(context).chipTheme.backgroundColor,
+        badgeColor: backgroundColor ?? Theme.of(context).chipTheme.backgroundColor,
         borderRadius: BorderRadius.circular(3),
         elevation: 0,
         padding: Pad(all: padding ?? 4),
@@ -45,13 +45,14 @@ class InfoChip extends StatelessWidget {
 
 class ButtonChip extends StatelessWidget {
   final IconData icon;
-  final Color color;
+  final Color textColor, backgroundColor;
   final String label;
   final double padding;
   final void Function() onTap, onLongPress;
   const ButtonChip({
     this.icon,
-    this.color,
+    this.textColor,
+    this.backgroundColor,
     this.label,
     this.padding,
     this.onTap,
@@ -60,7 +61,7 @@ class ButtonChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final label = Text(this.label, style: color == null ? null : TextStyle(color: color));
+    final label = Text(this.label, style: textColor == null ? null : TextStyle(color: textColor));
     return InfoChip(
       InkWell(
         child: Padding(
@@ -68,7 +69,7 @@ class ButtonChip extends StatelessWidget {
                 ? label
                 : Row(
                     children: [
-                      FaIcon(icon, size: 12, color: color),
+                      FaIcon(icon, size: 12, color: textColor),
                       Container(width: 4),
                       label,
                     ],
@@ -78,6 +79,7 @@ class ButtonChip extends StatelessWidget {
         onLongPress: onLongPress,
       ),
       padding: 0,
+      backgroundColor: backgroundColor,
       tooltip: this.label,
     );
   }
@@ -93,7 +95,7 @@ class ContentRating extends StatelessWidget {
     'M': Color(0xffc03d2f),
   };
 
-  static const full = {
+  static const fullRating = {
     'E': 'Rated Everyone',
     'T': 'Rated Teen',
     'M': 'Rated Mature',
@@ -103,8 +105,8 @@ class ContentRating extends StatelessWidget {
   Widget build(BuildContext context) {
     return InfoChip(
       Text(rating, overflow: TextOverflow.visible),
-      color: colors[rating],
-      tooltip: full[rating],
+      backgroundColor: colors[rating],
+      tooltip: fullRating[rating],
     );
   }
 }
@@ -122,7 +124,7 @@ class CompletedStatus extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InfoChip(status, color: colors[status]);
+    return InfoChip(status, backgroundColor: colors[status]);
   }
 }
 
@@ -178,7 +180,7 @@ class AuthorChip extends StatelessWidget {
       label: name,
       onTap: () => showModalBottomSheet(
         context: context,
-        builder: (context) => UserModal(id, (msg) => showSnackbar(context, msg)),
+        builder: (_) => UserModal(id, (msg) => showSnackbar(context, msg)),
         enableDrag: true,
       ),
       onLongPress: () => showSnackbar(context, 'author screen not implemented yet'),

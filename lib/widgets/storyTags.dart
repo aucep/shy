@@ -57,12 +57,19 @@ class StoryTagList extends StatelessWidget {
     color = 0x23b974;
     if (tags.character != null) badges.addAll(tags.character.map(toBadge));
 
-    return WrapSuper(
-      children: badges,
-      wrapType: center ? WrapType.balanced : WrapType.fit,
-      alignment: center ? WrapSuperAlignment.center : WrapSuperAlignment.left,
-      spacing: 4,
-      lineSpacing: 4,
-    );
+    return center
+        ? WrapSuper(
+            children: badges,
+            wrapType: WrapType.balanced,
+            alignment: WrapSuperAlignment.center,
+            spacing: 4,
+            lineSpacing: 4,
+          )
+        : Wrap(
+            children: badges,
+            alignment: WrapAlignment.start,
+            spacing: 4,
+            runSpacing: 4,
+          );
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:adaptive_theme/adaptive_theme.dart';
 //Code-splitting
 import 'util/sharedPrefs.dart';
 import 'screens/home.dart';
@@ -10,21 +11,39 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   //now everyone has the same storage instance
   await sharedPrefs.init();
+  //get previous theme
+  final savedTheme = await AdaptiveTheme.getThemeMode();
   //finally, we're at the app
-  runApp(MaterialApp(
-    title: 'shy',
-    initialRoute: '/',
-    onGenerateRoute: (RouteSettings settings) {
-      var routes = <String, WidgetBuilder>{
-        '/': (_) => HomeScreen(),
-        '/chapter': (_) =>
-            ChapterScreen(settings.arguments ?? ChapterArgs(chapterNum: 1, storyId: '395988')),
-        '/story': (_) => StoryScreen(settings.arguments ?? StoryArgs('395988')),
-      };
-      WidgetBuilder builder = routes[settings.name];
-      return MaterialPageRoute(builder: (ctx) => builder(ctx), settings: settings);
-    },
-    theme: ThemeData(),
-    debugShowCheckedModeBanner: false,
-  ));
+  runApp(ShyApp(prevTheme: savedTheme));
+}
+
+class ShyApp extends StatelessWidget {
+  final AdaptiveThemeMode prevTheme;
+  const ShyApp({this.prevTheme});
+
+  @override
+  Widget build(BuildContext context) {
+    return AdaptiveTheme(
+      light: ThemeData.light(),
+      dark: ThemeData.dark(),
+      initial: prevTheme ?? AdaptiveThemeMode.system,
+      builder: (theme, darkTheme) => MaterialApp(
+        title: 'shy',
+        initialRoute: '/',
+        onGenerateRoute: (RouteSettings settings) {
+          var routes = <String, WidgetBuilder>{
+            '/': (_) => HomeScreen(),
+            '/chapter': (_) =>
+                ChapterScreen(settings.arguments ?? ChapterArgs(chapterNum: 1, storyId: '395988')),
+            '/story': (_) => StoryScreen(settings.arguments ?? StoryArgs('395988')),
+          };
+          WidgetBuilder builder = routes[settings.name];
+          return MaterialPageRoute(builder: (ctx) => builder(ctx), settings: settings);
+        },
+        theme: theme,
+        darkTheme: darkTheme,
+        debugShowCheckedModeBanner: false,
+      ),
+    );
+  }
 }

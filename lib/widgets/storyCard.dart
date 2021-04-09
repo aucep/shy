@@ -26,14 +26,13 @@ class StoryCard extends StatelessWidget {
             width: 400,
             child: IntrinsicHeight(
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   StoryTitle(contentRating: data.contentRating, title: data.title),
                   if (data.tags.series.isNotEmpty) Divider(),
-                  IntrinsicHeight(
-                    child: StoryTagList(
-                      tags: data.tags,
-                      center: false,
-                    ),
+                  StoryTagList(
+                    tags: data.tags,
+                    center: false,
                   ),
                   Divider(),
                   Expanded(
