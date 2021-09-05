@@ -170,9 +170,9 @@ class IconChip extends StatelessWidget {
   }
 }
 
-class AuthorChip extends StatelessWidget {
+class UserChip extends StatelessWidget {
   final String name, id;
-  const AuthorChip({this.name, this.id});
+  const UserChip({this.name, this.id});
 
   @override
   Widget build(BuildContext context) {

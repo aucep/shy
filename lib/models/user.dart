@@ -53,8 +53,8 @@ class UserData {
         online: online,
         lastOnline: online ? 'now' : lastOnline.innerHtml,
         lastOnlineVerbose: online ? 'now' : lastOnline.attributes['title'],
-        id: watchButton.attributes['data-user'],
-        following: watchButton.attributes['data-watch'] == 'true',
+        id: userLink.attributes['href'].split('/')[2],
+        following: watchButton == null ? null : watchButton.attributes['data-watch'] == 'true',
         description: info.innerHtml,
         color: Color.fromARGB(
           255,

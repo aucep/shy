@@ -56,3 +56,4 @@ const keyShelfHidePrefix = "shelf_hide_prefix";
 const keyShelfTrimHidePrefix = "shelf_trim_hide_prefix";
 //global
 const keyShowImages = "show_images";
+//theme

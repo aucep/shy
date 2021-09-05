@@ -307,7 +307,7 @@ class StoryInfo extends StatelessWidget {
     return WrapSuper(
       alignment: WrapSuperAlignment.center,
       children: [
-        AuthorChip(name: story.authorName, id: story.authorId),
+        UserChip(name: story.authorName, id: story.authorId),
         RatingBar(rating: story.rating, loggedIn: loggedIn),
         IconChip.comments(story.comments),
         IconChip.views(story.totalViews),
@@ -375,7 +375,7 @@ class RelatedStoriesTab extends StatelessWidget {
             ),
           ),
           Material(
-            color: ThemeData().primaryColor,
+            color: Theme.of(context).primaryColor,
             child: SizedBox(
               height: kTextTabBarHeight,
               child: TabBar(
@@ -418,6 +418,30 @@ class None extends StatelessWidget {
               ),
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class BottomTabBar extends StatelessWidget {
+  final List<Widget> tabs;
+  const BottomTabBar({this.tabs});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Material(
+      color: theme.appBarTheme.backgroundColor,
+      child: SizedBox(
+        height: kTextTabBarHeight,
+        child: TabBar(
+          labelPadding: Pad(
+            vertical: (kTextTabBarHeight -
+                    theme.textTheme.headline6.fontSize * MediaQuery.textScaleFactorOf(context)) /
+                2,
+          ),
+          tabs: tabs,
         ),
       ),
     );

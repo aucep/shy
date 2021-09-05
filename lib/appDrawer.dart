@@ -13,18 +13,19 @@ import 'util/icons.dart';
 import 'util/sharedPrefs.dart';
 import 'models/bookshelf.dart';
 import 'util/showSnackbar.dart';
+import 'widgets/userModal.dart';
 
 class AppDrawer extends HookWidget {
   final AppDrawerData data;
   final void Function() refresh;
   AppDrawer({this.data, this.refresh});
 
-  void _logout() async {
+  /*void _logout() async {
     await http.ajaxRequest('logout', 'POST');
     sharedPrefs.sessionToken = '';
     sharedPrefs.signingKey = '';
     refresh();
-  }
+  }*/
 
   @override
   Widget build(BuildContext context) {
@@ -37,30 +38,55 @@ class AppDrawer extends HookWidget {
       child: ListView(
         children: [
           DrawerHeader(
-            decoration: BoxDecoration(color: Colors.green),
-            child: Column(
+            decoration: BoxDecoration(color: data.bgColor),
+            child: Row(
               children: [
                 Center(
                   child: Column(
-                    children: [
-                      if (sharedPrefs.showImages && data.avatarUrl != null)
-                        Image.network(data.avatarUrl, width: 90, height: 90),
-                      Text(data.username ?? 'not logged in'),
-                    ],
+                    children: data.loggedIn
+                        ? [
+                            if (sharedPrefs.showImages && data.avatarUrl != null)
+                              InkWell(
+                                onTap: () => showModalBottomSheet(
+                                  context: context,
+                                  builder: (_) =>
+                                      UserModal(data.userId, (msg) => showSnackbar(context, msg)),
+                                  enableDrag: true,
+                                ),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    boxShadow: kElevationToShadow[2],
+                                    border: Border.all(color: Colors.white, width: 3),
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  foregroundDecoration: BoxDecoration(
+                                    border: Border.all(color: Colors.white, width: 3),
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  child: Image.network(data.avatarUrl, height: 96),
+                                ),
+                              ),
+                            Text(
+                              data.username,
+                              style: Theme.of(context).textTheme.headline5.copyWith(
+                                    color: data.bgColor.computeLuminance() > 0.5
+                                        ? Colors.black
+                                        : Colors.white,
+                                  ),
+                            ),
+                          ]
+                        : [Text('not logged in')],
                   ),
                 ),
-                Spacer(),
-                data.loggedIn
-                    ? OutlinedButton(
-                        child: Text('log out'),
-                        onPressed: _logout,
-                      )
-                    : OutlinedButton(
-                        child: Text('login'),
-                        onPressed: () => showDialog(
-                              context: context,
-                              builder: (context) => LoginDialog(refresh: refresh),
-                            )),
+                if (!data.loggedIn) Spacer(),
+                if (!data.loggedIn)
+                  OutlinedButton(
+                    child: Text('login'),
+                    onPressed: () => showDialog(
+                      context: context,
+                      builder: (context) => LoginDialog(refresh: refresh),
+                    ),
+                  ),
               ],
             ),
           ),
@@ -112,24 +138,36 @@ class DrawerRouteItem extends StatelessWidget {
 
 class AppDrawerData {
   final bool loggedIn;
-  final String username, avatarUrl, bgColor, userId;
+  final String username, avatarUrl, userId;
+  final Color bgColor;
   final List<BookshelfData> shelves;
 
   AppDrawerData(
       {this.loggedIn, this.username, this.avatarUrl, this.bgColor, this.userId, this.shelves});
 
   static AppDrawerData fromDoc(Document doc) {
-    final htmlConfig = jsonDecode(
+    final Map<String, dynamic> htmlConfig = jsonDecode(
         doc.querySelector('.navigation-drawer-container').attributes['data-html-config']);
 
-    final user = htmlConfig['user'];
+    final Map<String, dynamic> user = htmlConfig['user'];
     final List<dynamic> shelves = htmlConfig['bookshelves'];
+    final rgb = user['backgroundColor']
+        .replaceFirst('rgb(', '')
+        .replaceFirst(')', '')
+        .split(',')
+        .map((s) => int.parse(s))
+        .toList();
     return AppDrawerData(
         loggedIn: htmlConfig['loggedIn'],
         username: user['name'],
         avatarUrl: user['avatar'],
         userId: user['url'].split('/')[2],
-        bgColor: user['backgroundColor'],
+        bgColor: Color.fromARGB(
+          255,
+          rgb[0],
+          rgb[1],
+          rgb[2],
+        ),
         shelves: shelves
             .map(
               (s) => BookshelfData.fromMap(s),

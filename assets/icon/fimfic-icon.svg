@@ -3,18 +3,17 @@
     <clipPath id="rect-bounds">
       <rect x="0" y="0" width="160" height="160" rx="20" fill-opacity="0"/>
     </clipPath>
-    <linearGradient id="brown-binding" x1="0%" y1="0%" x2="100%" y2="0%">
+    <linearGradient id="binding-highlight" x1="0%" y1="0%" x2="100%" y2="0%">
       <stop offset="0%" style="stop-color:black" />
       <stop offset="50%" stop-color="white" />
       <stop offset="100%" style="stop-color:black" />
-      </linearGradient>
-      
+    </linearGradient>
   </defs>
   <image opacity="0" x="0" y="0" width="160" height="160" clip-path="url(#rect-bounds)" href="https://static.fimfiction.net/images/favicon.png?9="/>
   
   <rect fill="#513525" width="160" height="160" clip-path="url(#rect-bounds)" />
   <rect fill="#3F271A" width="30" height="160" clip-path="url(#rect-bounds)" />
-  <rect fill="url(#brown-binding)" width="30" height="160" clip-path="url(#rect-bounds)"/>
+  <rect fill="url(#binding-highlight)" width="30" height="160" clip-path="url(#rect-bounds)" opacity="0.2"/>
 
   <rect fill="#352116" x="0" y="15" width="30" height="5" clip-path="url(#rect-bounds)" id="strip"/>
   <use href="#strip" y="25"/>

@@ -59,7 +59,7 @@ class StoryCard extends StatelessWidget {
                     spacing: 4,
                     lineSpacing: 4,
                     children: [
-                      AuthorChip(name: data.authorName, id: data.authorId),
+                      UserChip(name: data.authorName, id: data.authorId),
                       IconChip.words(data.wordcount),
                       IconChip.views(data.recentViews),
                     ],

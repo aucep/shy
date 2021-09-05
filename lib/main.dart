@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:adaptive_theme/adaptive_theme.dart';
+
 //Code-splitting
 import 'util/sharedPrefs.dart';
 import 'screens/home.dart';
@@ -12,21 +13,21 @@ void main() async {
   //now everyone has the same storage instance
   await sharedPrefs.init();
   //get previous theme
-  final savedTheme = await AdaptiveTheme.getThemeMode();
+  final savedThemeMode = await AdaptiveTheme.getThemeMode();
   //finally, we're at the app
-  runApp(ShyApp(prevTheme: savedTheme));
+  runApp(ShyApp(prevThemeMode: savedThemeMode));
 }
 
 class ShyApp extends StatelessWidget {
-  final AdaptiveThemeMode prevTheme;
-  const ShyApp({this.prevTheme});
+  final AdaptiveThemeMode prevThemeMode;
+  const ShyApp({this.prevThemeMode});
 
   @override
   Widget build(BuildContext context) {
     return AdaptiveTheme(
       light: ThemeData.light(),
       dark: ThemeData.dark(),
-      initial: prevTheme ?? AdaptiveThemeMode.system,
+      initial: prevThemeMode ?? AdaptiveThemeMode.system,
       builder: (theme, darkTheme) => MaterialApp(
         title: 'shy',
         initialRoute: '/',
