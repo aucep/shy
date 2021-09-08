@@ -1,57 +1,75 @@
-<svg version="1.1" baseProfile="full" width="250" height="250" xmlns="http://www.w3.org/2000/svg">
+<svg width="250" height="250" xmlns="http://www.w3.org/2000/svg">
   <!-- colors very much taken from https://mlpvector.club -->
   <defs>
-    <clipPath id="rect-bounds">
+		<clipPath id="rect-bounds">
       <rect x="0" y="0" width="160" height="160" rx="20" />
     </clipPath>
+
+		<g id="shiny-binding">
+			<rect fill="#E9D461" x="0" y="0" width="30" height="5" />
+			<rect fill="#FBECB3" x="0" y="5" width="30" height="20" />
+			<rect fill="#E9D461" x="0" y="25" width="30" height="5" />
+		</g>
+
+		<g id="raw-book">
+			<rect fill="#FAF5AB"  width="160" height="160"  />
+			<rect fill="#F3E488" width="30" height="160" />
+
+			<use xlink:href="#shiny-binding" y="15" />
+			<use xlink:href="#shiny-binding" y="115" />
+
+			<rect fill="#E9D461" x="30" width="5" height="160" />
+		</g>
+
     <g id="book">
-      <rect fill="#FAF5AB" width="160" height="160" clip-path="url(#rect-bounds)" />
-      <rect fill="#F3E488" width="30" height="160" clip-path="url(#rect-bounds)" />
-
-      <rect fill="#FBECB3" x="0" y="20" width="30" height="20" id="shiny-binding" />
-      <use xlink:href="#shiny-binding" y="100"/>
-
-      <rect fill="#E9D461" x="0" y="15" width="30" height="5" clip-path="url(#rect-bounds)" id="strip" />
-      <use xlink:href="#strip" y="25" />
-      <use xlink:href="#strip" y="100" />
-      <use xlink:href="#strip" y="125" />
-
-      <rect fill="#E9D461" x="30" width="5" height="160" clip-path="url(#rect-bounds)" />
-      <rect x="0" y="0" width="160" height="160" rx="20" fill-opacity="0" stroke="#E9D461" stroke-width="3"/>
+      <use xlink:href="#raw-book" clip-path="url(#rect-bounds)" />
+      <rect width="160" height="160" rx="20" fill-opacity="0" stroke="#E9D461" stroke-width="3" />
     </g>
-  </defs>
 
-  <path style="fill:#F3B5CF;stroke:none" d="M67.237216,91.934042
-    C67.237216,91.934042,31.290925,41.842885,21.863448000000005,85.26533400000001
-    M21.863448,85.265334
-    C21.863448,85.265334,30.735866,166.29512,27.237992000000002,189.7264
-    C23.779533,212.89365,8.774971400000002,169.11403,13.847945000000003,167.18702000000002
-    C13.847945,167.18702,-7.983972300000001,181.90747,13.020586999999999,229.71702
-    C20.986231,247.84803,53.408473,259.46643,81.60376299999999,228.11480999999998
-    L 117.59363,182.34319
-    67.237216,91.934042" id="hair-back-fill" />
-  <path style="fill:none;stroke:#E581B1;stroke-width:2.5px;stroke-linecap:butt;stroke-linejoin:round;stroke-opacity:1"
-    d="M67.237216,91.934042
-    M21.863448,85.265334
-    C21.863448,85.265334,30.735866,166.29512,27.237992000000002,189.7264
-    C23.779533,212.89365,8.774971400000002,169.11403,13.847945000000003,167.18702000000002
-    C13.847945,167.18702,-7.983972300000001,181.90747,13.020586999999999,229.71702
-    C20.986231,247.84803,53.408473,259.46643,81.60376299999999,228.11480999999998
-    L 117.59363,182.34319
-    67.237216,91.934042" id="hair-back-stroke" />
-  <use xlink:href="#book" x="45" y="45" />
-  <path
-    style="fill:#F3B5CF;stroke:#E581B1;stroke-width:2.5px;stroke-linecap:butt;stroke-linejoin:round;stroke-opacity:1" d="M67.237216,91.934042
-    C67.237216,91.934042,31.290925,41.842885,21.863448000000005,85.26533400000001
-    C22.745136,8.7211448 125.38062,-10.559453 193.0276,31.228273
-    C260.67458,73.016 233.21858,115.93354 229.69597,134.55634
-    C226.17336,153.17914 214.86896,187.29981 250.03144,226.6409
-    C200.21608,229.93196 186.1259,205.82448 186.1259,205.82448
-    C186.1259,205.82448,157.25566,161.33028,203.32615,111.18499999999999
-    C167.19995,75.770258,118.48409000000001,47.516436,67.237216,91.934042 " id="hair-front" />
-  <path style="fill:#FAF5AB;stroke:#E9D461;stroke-width:3px;stroke-linecap:butt;stroke-linejoin:round;stroke-opacity:1"
-    d="M166.01878000000002,90.7865
-       c-1.916,-77.296,52.885,-87.798,52.885,-87.798
-       c0,0,35.22781,77.5996118,-22.88284,113.3032028
-       m-30.002,-25.505" id="ear" />
+    <path class="mane" id="mane-back"
+      d="M 24 97
+      C56 159 22 235 13 166
+      C-9 195 32 293 104 200
+      L74 61
+      L17 64" />
+
+    <path class="mane" id="mane-front"
+      d="M206 106
+      C129 209 216 232 249 226
+      C183 139 284 108 210 42
+      S-37 -7 24 97
+      C16 65 47 52 83 88
+      Q121 49 172 85" />
+
+    <path class="coat" id="ear"
+      d="M166 91
+      C164 14 219 3 219 3
+      C219 3 254 81 196 116" />
+	</defs>
+  <style>
+    .mane {
+      fill:#F3B5CF;
+      stroke:#E581B1;
+    }
+    .coat {
+      fill:#FAF5AB;
+      stroke:#E9D461;
+    }
+    .mane, .coat {
+      stroke-width:3px;
+      stroke-linecap:butt;
+      stroke-linejoin:round;
+    }
+    .trans {
+      opacity: 0.5;
+    }
+  </style>
+
+  <use xlink:href="#mane-back" />
+
+  <use xlink:href="#book" x="45" y="45"/>
+  
+  <use xlink:href="#mane-front" />
+  
+  <use xlink:href="#ear" />
 </svg>
