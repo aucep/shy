@@ -70,17 +70,9 @@ class StoryData {
     //tags -> storyTags
     final tags = story.querySelector('.story-tags');
     //chapters -> chapters
-    final chapters = story.querySelector('.chapters').children;
-    //chapters.removeWhere((c) => c.querySelector('.chapter-title') == null);
-    //removeWhere is not implemented, fuck me
-    List<int> indexesToRemove = [];
-    chapters.asMap().forEach((i, c) {
-      if (c.querySelector('.chapter-title') == null) indexesToRemove.add(i);
-    });
-    for (var i = 0; i < indexesToRemove.length; i++) {
-      final index = indexesToRemove[i] - i;
-      chapters.removeAt(index);
-    }
+    final chapters = story.querySelector('.chapters').children.toList();
+    // thank u cherry <3
+    chapters.removeWhere((c) => c.querySelector('.chapter-title') == null);
     //ratingContainer -> hot, rating, comments, recentViews, totalViews
     final ratingContainer = story.querySelector('.rating_container');
     final infoBar = InfoBarData.fromRatingBar(ratingContainer);
