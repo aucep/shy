@@ -273,15 +273,14 @@ class ChapterRow extends HookWidget {
       title: Row(
         children: [
           Expanded(child: Text(row.title)),
-          Spacer(),
-          IntrinsicWidth(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                IconChip.date(row.date),
-                IconChip.words(row.wordcount),
-              ],
-            ),
+          Container(width: 6),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              IconChip.date(row.date),
+              Container(height: 3),
+              IconChip.words(row.wordcount),
+            ],
           ),
         ],
       ),
@@ -304,16 +303,16 @@ class StoryInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return WrapSuper(
-      alignment: WrapSuperAlignment.center,
+    return Wrap(
+      alignment: WrapAlignment.center,
+      spacing: 4,
+      runSpacing: 4,
       children: [
         UserChip(name: story.authorName, id: story.authorId),
         RatingBar(rating: story.rating, loggedIn: loggedIn),
         IconChip.comments(story.comments),
         IconChip.views(story.totalViews),
       ],
-      spacing: 4,
-      lineSpacing: 4,
     );
   }
 }

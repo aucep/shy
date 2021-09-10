@@ -1,5 +1,6 @@
 import 'dart:convert' show jsonDecode;
 
+import 'package:assorted_layout_widgets/assorted_layout_widgets.dart';
 import 'package:badges/badges.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -189,7 +190,7 @@ class LoginDialog extends HookWidget {
     return AlertDialog(
       title: Text('Log in'),
       content: SingleChildScrollView(
-        padding: EdgeInsets.symmetric(horizontal: 8),
+        padding: Pad(horizontal: 8),
         child: Form(
           key: _formKey,
           child: IntrinsicHeight(
@@ -335,7 +336,7 @@ class ShelfTile extends StatelessWidget {
             ? Badge(
                 child: ShelfIcon(s.icon),
                 badgeContent: Text('${s.numUnread}', style: TextStyle(fontSize: 11)),
-                padding: EdgeInsets.all(3),
+                padding: Pad(all: 3),
               )
             : ShelfIcon(s.icon),
         title: Text(s.name),

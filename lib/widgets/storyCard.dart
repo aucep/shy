@@ -1,6 +1,5 @@
-import 'package:assorted_layout_widgets/assorted_layout_widgets.dart';
 import 'package:flutter/material.dart';
-import 'package:shy/widgets/storyTags.dart';
+import 'package:assorted_layout_widgets/assorted_layout_widgets.dart';
 
 //code-splitting
 import '../screens/story.dart';
@@ -8,6 +7,7 @@ import '../models/story.dart';
 import 'chips.dart';
 import 'expandableImage.dart';
 import 'storyTitle.dart';
+import 'storyTags.dart';
 
 class StoryCard extends StatelessWidget {
   final StoryData data;
@@ -16,13 +16,13 @@ class StoryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: EdgeInsets.only(bottom: 8),
+      margin: Pad(bottom: 8),
       elevation: 3,
       child: Material(
         child: InkWell(
           onTap: () => Navigator.of(context).pushNamed('/story', arguments: StoryArgs(data.id)),
           child: Container(
-            margin: EdgeInsets.all(8),
+            margin: Pad(all: 8),
             width: 400,
             child: IntrinsicHeight(
               child: Column(
@@ -41,7 +41,7 @@ class StoryCard extends StatelessWidget {
                       children: [
                         data.imageUrl.isNotEmpty
                             ? Padding(
-                                padding: EdgeInsets.fromLTRB(3, 0, 8, 0),
+                                padding: Pad(left: 3, right: 8),
                                 child: ConstrainedBox(
                                   constraints: BoxConstraints(maxHeight: 120, maxWidth: 120),
                                   child: ExpandableImage(data.imageUrl),
@@ -55,9 +55,10 @@ class StoryCard extends StatelessWidget {
                     ),
                   ),
                   Divider(),
-                  WrapSuper(
+                  Wrap(
                     spacing: 4,
-                    lineSpacing: 4,
+                    runSpacing: 4,
+                    alignment: WrapAlignment.start,
                     children: [
                       UserChip(name: data.authorName, id: data.authorId),
                       IconChip.words(data.wordcount),
@@ -85,7 +86,7 @@ class StoryCardList extends StatelessWidget {
       child: Scrollbar(
         child: ListView.builder(
           physics: const AlwaysScrollableScrollPhysics(),
-          padding: EdgeInsets.fromLTRB(8, 8, 8, 0),
+          padding: Pad(all: 8, bottom: 0),
           itemBuilder: (_, i) => StoryCard(data: data[i]),
           itemCount: data.length,
         ),

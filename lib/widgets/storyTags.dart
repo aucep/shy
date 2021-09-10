@@ -40,7 +40,7 @@ class StoryTagList extends StatelessWidget {
         badgeContent: Text(tag, style: TextStyle(color: Colors.white, fontSize: 13)),
         shape: BadgeShape.square,
         badgeColor: badgeColor,
-        padding: EdgeInsets.all(3),
+        padding: Pad(all: 3),
         borderRadius: BorderRadius.circular(3),
         elevation: 0,
       );
@@ -59,17 +59,17 @@ class StoryTagList extends StatelessWidget {
 
     return center
         ? WrapSuper(
-            children: badges,
             wrapType: WrapType.balanced,
             alignment: WrapSuperAlignment.center,
             spacing: 4,
             lineSpacing: 4,
+            children: badges,
           )
         : Wrap(
-            children: badges,
             alignment: WrapAlignment.start,
             spacing: 4,
             runSpacing: 4,
+            children: badges,
           );
   }
 }

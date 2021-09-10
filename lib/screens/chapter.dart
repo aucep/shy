@@ -1,3 +1,4 @@
+import 'package:assorted_layout_widgets/assorted_layout_widgets.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart' hide Page;
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -88,13 +89,13 @@ class Paragraphs extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scrollbar(
       child: ListView(
-        padding: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+        padding: Pad(all: 16),
         //i moved the padding inside because it looks better
         controller: controller,
         children: html
             .map(
               (p) => Padding(
-                padding: EdgeInsets.symmetric(vertical: 8),
+                padding: Pad(vertical: 8),
                 child: HtmlWidget(
                   p,
                   textStyle: TextStyle(height: 1.8),

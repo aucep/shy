@@ -25,8 +25,8 @@ class InfoChip extends StatelessWidget {
         toAnimate: false,
         badgeContent: icon == null
             ? label
-            : RowSuper(
-                fill: false,
+            : Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   FaIcon(icon, size: 12),
                   Container(width: 4),

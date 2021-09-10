@@ -1,4 +1,3 @@
-import 'package:assorted_layout_widgets/assorted_layout_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
@@ -19,7 +18,8 @@ class RatingBar extends HookWidget {
     if (rating.disabled) {
       return InfoChip('ratings disabled');
     } else if (!loggedIn) {
-      return RowSuper(
+      return Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
           InfoChip.icon(Icons.thumb_up, rating.likes),
           Container(width: 6),
@@ -27,7 +27,8 @@ class RatingBar extends HookWidget {
         ],
       );
     } else {
-      return RowSuper(
+      return Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
           ButtonChip(
             icon: Icons.thumb_up,
