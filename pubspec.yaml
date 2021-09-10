@@ -37,7 +37,7 @@ dependencies:
   #app bar hides on scroll
   scroll_app_bar: ^1.0.3
   #hooks/provider
-  flutter_hooks: ^0.16.0
+  flutter_hooks: ^0.18.0
   #hooks_riverpod: ^0.13.1
   #snackbar on top
   another_flushbar: ^1.10.17
@@ -49,8 +49,11 @@ dependencies:
   equatable: ^2.0.0
   #fullscreen image preview
   full_screen_image: ^1.0.2
-  #for funsies
-  assorted_layout_widgets: ^4.0.0
+  #for Pad use only!!
+  assorted_layout_widgets: #^5.1.1
+    git:
+      url: https://github.com/josh-burton/assorted_layout_widgets.git
+      ref: beta-fix
   #keyval storage that actually works
   get_storage: ^2.0.1
   #for signing
