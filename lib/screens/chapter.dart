@@ -55,27 +55,29 @@ class ChapterScreen extends HookWidget {
       return null;
     }, [chapterNum.value]);
 
-    return Scaffold(
-      appBar: ScrollAppBar(
-        controller: controller,
-        titleSpacing: 0,
-        title: CheatTitle(body?.title ?? 'story/${args.storyId}/${chapterNum.value}/'),
-        centerTitle: true,
-        automaticallyImplyLeading: false,
-      ),
-      body: loading.value == true || body == null
-          ? Center(child: CircularProgressIndicator())
-          : RefreshIndicator(
-              onRefresh: refresh,
-              child: Paragraphs(
-                html: body.body,
-                controller: controller,
+    return SafeArea(
+      child: Scaffold(
+        appBar: ScrollAppBar(
+          controller: controller,
+          titleSpacing: 0,
+          title: CheatTitle(body?.title ?? 'story/${args.storyId}/${chapterNum.value}/'),
+          centerTitle: true,
+          automaticallyImplyLeading: false,
+        ),
+        body: loading.value == true || body == null
+            ? Center(child: CircularProgressIndicator())
+            : RefreshIndicator(
+                onRefresh: refresh,
+                child: Paragraphs(
+                  html: body.body,
+                  controller: controller,
+                ),
               ),
-            ),
-      drawer: AppDrawer(data: page.value?.drawer, refresh: refresh),
-      endDrawer: body != null
-          ? ChapterDrawer(story: body.story, chapterNum: chapterNum, chapterTitle: body.title)
-          : Drawer(),
+        drawer: AppDrawer(data: page.value?.drawer, refresh: refresh),
+        endDrawer: body != null
+            ? ChapterDrawer(story: body.story, chapterNum: chapterNum, chapterTitle: body.title)
+            : Drawer(),
+      ),
     );
   }
 }
