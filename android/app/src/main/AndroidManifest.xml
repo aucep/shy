@@ -19,12 +19,9 @@
 
             <!-- Support sharing urls into the app -->
             <intent-filter>
-               <action android:name="android.intent.action.VIEW" />
+               <action android:name="android.intent.action.SEND" />
                <category android:name="android.intent.category.DEFAULT" />
-               <category android:name="android.intent.category.BROWSABLE" />
-               <data
-                   android:scheme="https"
-                   android:host="fimfiction.com"/>
+               <category android:mimeType="text/plain" />
             </intent-filter>
 
             <!-- Specifies an Android theme to apply to this Activity as soon as
