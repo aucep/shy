@@ -21,7 +21,7 @@
             <intent-filter>
                <action android:name="android.intent.action.SEND" />
                <category android:name="android.intent.category.DEFAULT" />
-               <category android:mimeType="text/plain" />
+               <data android:mimeType="text/plain" />
             </intent-filter>
 
             <!-- Specifies an Android theme to apply to this Activity as soon as
