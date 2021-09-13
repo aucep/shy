@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 
 //code-splitting
-import '../screens/story.dart';
+import '../screens/debug.dart';
 
 class IntentNavigator extends StatelessWidget {
   final Widget child;
@@ -10,9 +10,15 @@ class IntentNavigator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    ReceiveSharingIntent.getTextStreamAsUri().listen((Uri uri) {
-      Navigator.of(context).pushNamed('/story', arguments: StoryArgs('22178'));
-    });
+    navigate(Uri uri) {
+      Navigator.of(context).pushNamed('/debug', arguments: DebugArgs(uri));
+      // if (uri.host == "fimfiction.com") {
+      //   Navigator.of(context).pushNamed('/debug', arguments: DebugArgs(uri));
+      // }
+    }
+
+    ReceiveSharingIntent.getTextStreamAsUri().listen(navigate);
+    ReceiveSharingIntent.getInitialTextAsUri().then(navigate);
     return child;
   }
 }
