@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:adaptive_theme/adaptive_theme.dart';
 
 //Code-splitting
-import 'screens/debug.dart';
 import 'util/sharedPrefs.dart';
 import 'screens/home.dart';
 import 'screens/chapter.dart';
@@ -34,17 +33,17 @@ class ShyApp extends StatelessWidget {
         title: 'shy',
         initialRoute: '/',
         onGenerateRoute: (RouteSettings settings) {
-          var routes = <String, WidgetBuilder>{
+          final routes = <String, WidgetBuilder>{
             '/': (_) => HomeScreen(),
             '/chapter': (_) =>
                 ChapterScreen(settings.arguments ?? ChapterArgs(chapterNum: 1, storyId: '395988')),
             '/story': (_) => StoryScreen(settings.arguments ?? StoryArgs('395988')),
-            '/debug': (_) =>
-                DebugScreen(settings.arguments ?? Uri.parse('https://fimfiction.net/story/395988'))
           };
           WidgetBuilder builder = routes[settings.name];
           return MaterialPageRoute(
-              builder: (ctx) => IntentNavigator(child: builder(ctx)), settings: settings);
+            builder: (ctx) => IntentNavigator(child: builder(ctx)),
+            settings: settings,
+          );
         },
         theme: theme,
         darkTheme: darkTheme,
