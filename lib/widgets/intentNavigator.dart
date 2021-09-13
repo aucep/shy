@@ -11,7 +11,7 @@ class IntentNavigator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     navigate(Uri uri) {
-      Navigator.of(context).pushNamed('/debug', arguments: DebugArgs(uri));
+      Navigator.of(context).pushNamedIfNew('/debug', arguments: DebugArgs(uri));
       // if (uri.host == "fimfiction.com") {
       //   Navigator.of(context).pushNamed('/debug', arguments: DebugArgs(uri));
       // }
