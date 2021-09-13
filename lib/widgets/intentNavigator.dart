@@ -12,7 +12,7 @@ class IntentNavigator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     navigate(Uri uri) {
-      if (uri.host == 'www.fimfiction.com' || uri.host == 'fimfiction.com')
+      if (uri.host == 'www.fimfiction.net')
         Navigator.of(context).pushNamedIfNew('/debug', args: DebugArgs(uri));
       if (uri.host.isNotEmpty)
         ScaffoldMessenger.of(context).showSnackBar(
