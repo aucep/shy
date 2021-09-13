@@ -12,10 +12,8 @@ class IntentNavigator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     navigate(Uri uri) {
-      Navigator.of(context).pushNamedIfNew('/debug', args: DebugArgs(uri));
-      // if (uri.host == "fimfiction.com") {
-      //   Navigator.of(context).pushNamed('/debug', arguments: DebugArgs(uri));
-      // }
+      if (uri.host == "www.fimfiction.com" || uri.host == "fimfiction.com")
+        Navigator.of(context).pushNamedIfNew('/debug', args: DebugArgs(uri));
     }
 
     ReceiveSharingIntent.getTextStreamAsUri().listen(navigate);

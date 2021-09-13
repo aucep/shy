@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:equatable/equatable.dart';
 
+//code-splitting
 import '../appDrawer.dart';
 
-class DebugArgs {
+class DebugArgs extends Equatable {
   final Uri uri;
   const DebugArgs(this.uri);
+
+  @override
+  List<Object> get props => [uri];
 }
 
 class DebugScreen extends StatelessWidget {
