@@ -1,4 +1,5 @@
 # shy
+[![Build Flutter APK](https://github.com/aucep/shy/actions/workflows/flutter-build.yml/badge.svg)](https://github.com/aucep/shy/actions/workflows/flutter-build.yml)
 
 An application to browse and read fanfiction on [Fimfiction](https://www.fimfiction.net/)
 
