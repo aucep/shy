@@ -6,6 +6,7 @@ import 'util/sharedPrefs.dart';
 import 'screens/home.dart';
 import 'screens/chapter.dart';
 import 'screens/story.dart';
+import 'widgets/intentNavigator.dart';
 
 void main() async {
   //everyone puts this here so... yeah
@@ -39,7 +40,8 @@ class ShyApp extends StatelessWidget {
             '/story': (_) => StoryScreen(settings.arguments ?? StoryArgs('395988')),
           };
           WidgetBuilder builder = routes[settings.name];
-          return MaterialPageRoute(builder: (ctx) => builder(ctx), settings: settings);
+          return MaterialPageRoute(
+              builder: (ctx) => IntentNavigator(child: builder(ctx)), settings: settings);
         },
         theme: theme,
         darkTheme: darkTheme,
