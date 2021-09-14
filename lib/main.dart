@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:adaptive_theme/adaptive_theme.dart';
 
@@ -31,6 +32,9 @@ class ShyApp extends StatelessWidget {
       initial: prevThemeMode ?? AdaptiveThemeMode.system,
       builder: (theme, darkTheme) => MaterialApp(
         title: 'shy',
+        theme: theme,
+        darkTheme: darkTheme,
+        debugShowCheckedModeBanner: false,
         initialRoute: '/',
         onGenerateRoute: (RouteSettings settings) {
           final routes = <String, WidgetBuilder>{
@@ -41,13 +45,14 @@ class ShyApp extends StatelessWidget {
           };
           WidgetBuilder builder = routes[settings.name];
           return MaterialPageRoute(
-            builder: (ctx) => IntentNavigator(child: builder(ctx)),
+            builder: (ctx) => ScrollConfiguration(
+              behavior: ScrollConfiguration.of(ctx)
+                  .copyWith(dragDevices: PointerDeviceKind.values.toSet()),
+              child: IntentNavigator(child: builder(ctx)),
+            ),
             settings: settings,
           );
         },
-        theme: theme,
-        darkTheme: darkTheme,
-        debugShowCheckedModeBanner: false,
       ),
     );
   }
