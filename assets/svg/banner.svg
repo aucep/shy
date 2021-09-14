@@ -1,0 +1,111 @@
+<svg viewBox="0 0 1280 640" xmlns="http://www.w3.org/2000/svg">
+	<defs>
+		<radialGradient id="vwoom">
+			<stop offset="0%" stop-color="#9acffd" />
+			<stop offset="100%" stop-color="#58a5e7" />
+		</radialGradient>
+	</defs>
+	<rect width="1280" height="640" fill="url(#vwoom)" />
+	<svg x="calc(100% - 250px * 1.7 - 125px)" y="calc(50% - 125px * 1.7)">
+		<g transform="scale(1.7)">
+			<svg width="250" height="250" xmlns="http://www.w3.org/2000/svg">
+				<!-- colors very much taken from https://mlpvector.club -->
+				<defs>
+					<clipPath id="rect-bounds">
+						<rect x="0" y="0" width="160" height="160" rx="20" />
+					</clipPath>
+
+					<g id="shiny-binding">
+						<rect fill="#E9D461" x="0" y="0" width="30" height="5" />
+						<rect fill="#FBECB3" x="0" y="5" width="30" height="20" />
+						<rect fill="#E9D461" x="0" y="25" width="30" height="5" />
+					</g>
+
+					<g id="raw-book">
+						<rect fill="#FAF5AB" width="160" height="160" />
+						<rect fill="#F3E488" width="30" height="160" />
+
+						<use xlink:href="#shiny-binding" y="15" />
+						<use xlink:href="#shiny-binding" y="115" />
+
+						<rect fill="#E9D461" x="30" width="5" height="160" />
+					</g>
+
+					<g id="book">
+						<use xlink:href="#raw-book" clip-path="url(#rect-bounds)" />
+						<rect width="160" height="160" rx="20" fill-opacity="0" stroke="#E9D461" stroke-width="3" />
+					</g>
+
+					<path class="mane" id="mane-back" d="M 24 97
+      C56 159 22 235 13 166
+      C-9 195 32 293 104 200
+      L74 61
+      L17 64" />
+
+					<path class="mane" id="mane-front" d="M206 106
+      C129 209 216 232 249 226
+      C183 139 284 108 210 42
+      S-37 -7 24 97
+      C16 65 47 52 83 88
+      Q121 49 172 85" />
+
+					<path class="coat" id="ear" d="M166 91
+      C164 14 219 3 219 3
+      C219 3 254 81 196 116" />
+				</defs>
+				<style>
+					.mane {
+						fill: #F3B5CF;
+						stroke: #E581B1;
+					}
+
+					.coat {
+						fill: #FAF5AB;
+						stroke: #E9D461;
+					}
+
+					.mane,
+					.coat {
+						stroke-width: 3px;
+						stroke-linecap: butt;
+						stroke-linejoin: round;
+					}
+
+					.trans {
+						opacity: 0.5;
+					}
+				</style>
+
+				<use xlink:href="#mane-back" />
+
+				<use xlink:href="#book" x="45" y="45" />
+
+				<use xlink:href="#mane-front" />
+
+				<use xlink:href="#ear" />
+			</svg>
+		</g>
+	</svg>
+	<svg x="calc(6.25% + 20px)" y="calc(12.5% + 50px)" width="50%">
+		<style>
+			.title {
+				font-size: 175px;
+				font-family: Ubuntu;
+			}
+
+			.desc {
+				font-size: 70px;
+				font-family: 'Baloo 2';
+			}
+
+			text {
+				dominant-baseline: hanging;
+			}
+		</style>
+		<text x="27%" y="0" class="title">Shy</text>
+		<text x="0" y="180" class="desc">an app for Fimfiction,</text>
+		<text x="8%" y="280" class="desc">made with Flutter</text>
+	</svg>
+
+
+</svg>
