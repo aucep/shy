@@ -14,6 +14,9 @@ jobs:
   build:
     # This job will run on ubuntu virtual machine
     runs-on: ubuntu-latest
+    env:
+        KEY_PASSWORD: ${{ secrets.KEYSTORE_PASS }}
+        KEYSTORE: ${{ secrets.KEYSTORE }}
     steps:
     
     # Setup Java environment in order to build the Android app.
@@ -27,12 +30,11 @@ jobs:
       # with:
         # channel: 'beta' # 'dev', 'alpha', default to: 'stable'
         # flutter-version: '1.12.x' # you can also specify exact version of flutter
+      
+    - run: echo $KEYSTORE | base64 -d > key.jks
     
     # Get flutter dependencies.
     - run: flutter pub get
-    
-    # Statically analyze the Dart code for any errors.
-    - run: flutter analyze .
     
     # Build apk.
     - run: flutter build apk --no-shrink
@@ -42,3 +44,6 @@ jobs:
       with:
         name: release-apk
         path: build/app/outputs/apk/release/app-release.apk
+    
+    # Statically analyze the Dart code for any errors.
+    - run: flutter analyze .

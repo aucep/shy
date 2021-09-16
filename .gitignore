@@ -44,3 +44,4 @@ app.*.map.json
 saved_html/
 python-experiments/
 go/
+android/*.jks
