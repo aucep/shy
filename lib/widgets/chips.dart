@@ -1,11 +1,13 @@
-import 'package:assorted_layout_widgets/assorted_layout_widgets.dart';
-import 'package:badges/badges.dart';
+//flutter
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-//code-splitting
-import '../util/showSnackbar.dart';
+import 'package:badges/badges.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:assorted_layout_widgets/assorted_layout_widgets.dart';
+
+//local
 import '../widgets/userModal.dart';
+import '../util/showSnackbar.dart';
 
 class InfoChip extends StatelessWidget {
   final label;

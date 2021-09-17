@@ -1,6 +1,10 @@
-import 'package:assorted_layout_widgets/assorted_layout_widgets.dart';
-import 'package:badges/badges.dart';
+//flutter
 import 'package:flutter/material.dart';
+
+import 'package:badges/badges.dart';
+import 'package:assorted_layout_widgets/assorted_layout_widgets.dart';
+
+//local
 import '../models/storyTags.dart';
 
 class StoryTagList extends StatelessWidget {

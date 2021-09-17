@@ -1,11 +1,13 @@
-import 'package:assorted_layout_widgets/assorted_layout_widgets.dart';
-import 'package:badges/badges.dart';
+//flutter
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+
+import 'package:badges/badges.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:assorted_layout_widgets/assorted_layout_widgets.dart';
 
-//code-splitting
+//local
 import '../models/user.dart';
 
 class UserModal extends HookWidget {

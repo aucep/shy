@@ -1,7 +1,10 @@
-import 'package:flutter/widgets.dart' show Color;
+//dart
 import 'package:html/dom.dart';
 
-//code-splitting
+//flutter
+import 'package:flutter/widgets.dart' show Color;
+
+//local
 import '../util/fimHttp.dart';
 
 class UserData {

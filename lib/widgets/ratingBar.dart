@@ -1,10 +1,12 @@
+//flutter
 import 'package:flutter/material.dart';
+
 import 'package:flutter_hooks/flutter_hooks.dart';
 
-//code-splitting
+//local
+import '../widgets/chips.dart';
 import '../models/bars.dart';
 import '../util/showSnackbar.dart';
-import 'chips.dart';
 
 class RatingBar extends HookWidget {
   final RatingBarData rating;

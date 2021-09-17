@@ -1,7 +1,9 @@
+//flutter
 import 'package:flutter/material.dart';
+
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 
-//code-splitting
+//local
 import '../screens/chapter.dart';
 import '../screens/story.dart';
 import '../util/nav.dart';

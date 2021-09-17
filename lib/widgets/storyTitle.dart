@@ -1,8 +1,11 @@
-import 'package:assorted_layout_widgets/assorted_layout_widgets.dart';
+//flutter
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-import 'chips.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:assorted_layout_widgets/assorted_layout_widgets.dart';
+
+//local
+import '../widgets/chips.dart';
 
 class StoryTitle extends StatelessWidget {
   final String contentRating, title;

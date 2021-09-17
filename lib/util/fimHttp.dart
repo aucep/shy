@@ -1,13 +1,17 @@
-import 'dart:convert' show jsonDecode, utf8;
+//dart
 import 'dart:math';
+import 'dart:convert' show jsonDecode, utf8;
 
-import 'package:brotli/brotli.dart';
 import 'package:html/dom.dart';
 import 'package:html/parser.dart';
+import 'package:brotli/brotli.dart';
 import 'package:http/http.dart'
     show BaseClient, BaseRequest, Client, Request, Response, StreamedResponse;
+
+//flutter
 import 'package:flutter/foundation.dart' show kDebugMode;
-//code-splitting
+
+//local
 import 'sharedPrefs.dart';
 import 'signature.dart';
 

@@ -1,14 +1,16 @@
+//flutter
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import '../util/showSnackbar.dart';
 
-//code-splitting
+//local
 import '../appDrawer.dart';
+import '../models/story.dart';
 import '../models/bookshelf.dart';
 import '../util/sharedPrefs.dart';
-import '../models/story.dart';
+import '../util/showSnackbar.dart';
 
 class AddToShelvesModal extends HookWidget {
   final StoryData story;

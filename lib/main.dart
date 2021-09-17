@@ -1,13 +1,13 @@
+//flutter
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+
 import 'package:adaptive_theme/adaptive_theme.dart';
 
-//Code-splitting
-import 'util/sharedPrefs.dart';
-import 'screens/home.dart';
-import 'screens/chapter.dart';
-import 'screens/story.dart';
+//local
+import 'screens/index.dart';
 import 'widgets/intentNavigator.dart';
+import 'util/sharedPrefs.dart';
 
 void main() async {
   //everyone puts this here so... yeah

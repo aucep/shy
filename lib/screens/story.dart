@@ -1,26 +1,19 @@
-import 'package:assorted_layout_widgets/assorted_layout_widgets.dart';
+//dart
 import 'package:equatable/equatable.dart';
+
+//flutter
 import 'package:flutter/material.dart' hide Page;
+
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:assorted_layout_widgets/assorted_layout_widgets.dart';
 import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
 
-//code-splitting
+//local
 import '../appDrawer.dart';
-import '../models/chapter.dart';
-import '../models/pageData.dart';
-import '../models/story.dart';
-import '../util/fimHttp.dart';
-import '../util/sharedPrefs.dart';
-import '../util/showSnackbar.dart';
-import '../widgets/cheatTitle.dart';
-import '../widgets/chips.dart';
-import '../widgets/expandableImage.dart';
-import '../widgets/ratingBar.dart';
-import '../widgets/shelvesModal.dart';
-import '../widgets/storyTags.dart';
-import '../widgets/storyTitle.dart';
-import '../widgets/storyCard.dart';
-import 'chapter.dart';
+import '../screens/chapter.dart';
+import '../widgets/index.dart';
+import '../models/index.dart';
+import '../util/index.dart';
 
 class StoryArgs extends Equatable {
   final String id;

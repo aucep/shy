@@ -1,6 +1,7 @@
-//code-splitting
+//dart
 import 'package:html/dom.dart' show Element;
 
+//local
 import '../util/fimHttp.dart';
 
 ///holds info bar data
@@ -67,7 +68,7 @@ class InfoBarData {
 }
 
 //this class exists because composition
-///holds data and actions (simple constructor)
+///
 class RatingBarData {
   final String storyId;
 

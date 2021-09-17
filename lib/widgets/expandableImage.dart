@@ -1,7 +1,9 @@
+//flutter
 import 'package:flutter/material.dart';
+
 import 'package:full_screen_image/full_screen_image.dart';
 
-//code-splitting
+//local
 import '../util/sharedPrefs.dart';
 
 class ExpandableImage extends StatelessWidget {

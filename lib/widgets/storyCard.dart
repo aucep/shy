@@ -1,13 +1,12 @@
+//flutter
 import 'package:flutter/material.dart';
+
 import 'package:assorted_layout_widgets/assorted_layout_widgets.dart';
 
-//code-splitting
+//local
 import '../screens/story.dart';
+import '../widgets/index.dart';
 import '../models/story.dart';
-import 'chips.dart';
-import 'expandableImage.dart';
-import 'storyTitle.dart';
-import 'storyTags.dart';
 
 class StoryCard extends StatelessWidget {
   final StoryData data;

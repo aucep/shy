@@ -1,8 +1,11 @@
-import 'package:crypto/crypto.dart';
-import 'dart:convert';
+//dart
 import 'dart:math';
-//code-splitting
-import 'sharedPrefs.dart';
+import 'dart:convert';
+
+import 'package:crypto/crypto.dart';
+
+//local
+import '../util/sharedPrefs.dart';
 
 class SignSet {
   final String signature, nonce, timestamp;

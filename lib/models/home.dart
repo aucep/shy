@@ -1,9 +1,10 @@
+//dart
 import 'package:html/dom.dart' show Document;
 
-//code-splitting
-import '../models/story.dart';
+//local
 import '../appDrawer.dart';
-import 'pageData.dart';
+import '../models/story.dart';
+import '../models/pageData.dart';
 
 class Home {
   final List<StoryData> popular, newlyAdded, updated, featured;

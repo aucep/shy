@@ -1,14 +1,11 @@
+//dart
 import 'package:html/dom.dart';
 
-//code-splitting
+//local
+import '../appDrawer.dart';
+import '../models/index.dart';
 import '../util/fimHttp.dart';
 import '../util/unescape.dart';
-import '../appDrawer.dart';
-import 'bookshelf.dart';
-import 'chapter.dart';
-import 'bars.dart';
-import 'storyTags.dart';
-import 'pageData.dart';
 
 class StoryData {
   final String title, description, imageUrl, contentRating;

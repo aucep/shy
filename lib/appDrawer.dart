@@ -1,20 +1,22 @@
+//dart
 import 'dart:convert' show jsonDecode;
 
-import 'package:assorted_layout_widgets/assorted_layout_widgets.dart';
-import 'package:badges/badges.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:html/dom.dart' show Document;
+
+//flutter
+import 'package:flutter/material.dart';
+
+import 'package:badges/badges.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:adaptive_theme/adaptive_theme.dart';
-//code-splitting
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:assorted_layout_widgets/assorted_layout_widgets.dart';
+
+//local
 import 'screens/chapter.dart';
-import 'util/fimHttp.dart';
-import 'util/icons.dart';
-import 'util/sharedPrefs.dart';
-import 'models/bookshelf.dart';
-import 'util/showSnackbar.dart';
 import 'widgets/userModal.dart';
+import 'models/bookshelf.dart';
+import 'util/index.dart';
 
 class AppDrawer extends HookWidget {
   final AppDrawerData data;

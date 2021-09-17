@@ -1,6 +1,7 @@
-import 'package:another_flushbar/flushbar.dart';
-import 'package:flutter/material.dart';
+//flutter
 import 'package:flutter/widgets.dart';
+
+import 'package:another_flushbar/flushbar.dart';
 
 void showSnackbar(BuildContext context, String msg) => Flushbar(
       message: msg,

@@ -1,10 +1,12 @@
+//dart
 import 'package:html/dom.dart';
-//code-splitting
+
+//local
 import '../appDrawer.dart';
+import '../models/pageData.dart';
+import '../models/story.dart';
 import '../util/fimHttp.dart';
 import '../util/unescape.dart';
-import 'pageData.dart';
-import 'story.dart';
 
 class ChapterData {
   final String title;
